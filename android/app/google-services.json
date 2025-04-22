@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "104171970853",
+    "firebase_url": "https://retoindia-test-default-rtdb.firebaseio.com",
+    "project_id": "retoindia-test",
+    "storage_bucket": "retoindia-test.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:104171970853:android:6b6d52cc63918a9e27facc",
+        "android_client_info": {
+          "package_name": "com.reto.reto_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDylM9k8M-srASv8J4STYFvKSsNIPto4do"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
