@@ -38,15 +38,18 @@ android {
 
     signingConfigs {
         create("release") {
-            val keystoreProperties = Properties()
             val keystorePropertiesFile = rootProject.file("key.properties")
             if (keystorePropertiesFile.exists()) {
+                val keystoreProperties = Properties()
                 keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+
+                keyAlias = keystoreProperties["keyAlias"] as? String ?: ""
+                keyPassword = keystoreProperties["keyPassword"] as? String ?: ""
+                storeFile = keystoreProperties["storeFile"]?.let { file(it.toString()) }
+                storePassword = keystoreProperties["storePassword"] as? String ?: ""
+            } else {
+                println("Warning: key.properties file not found. Release build may fail.")
             }
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
-            storeFile = keystoreProperties["storeFile"]?.let { file(it.toString()) }
-            storePassword = keystoreProperties["storePassword"] as String
         }
     }
 
