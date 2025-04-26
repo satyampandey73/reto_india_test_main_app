@@ -21,10 +21,9 @@ class ReuseableTextWidget extends StatelessWidget {
         children: [
           Text(
             title,
-            style: GoogleFonts.roboto(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1,
+            style: TextStyle(
+              fontFamily: GoogleFonts.siemreapTextTheme().bodyLarge?.fontFamily,
+              fontSize: 22,
             ),
           ),
 

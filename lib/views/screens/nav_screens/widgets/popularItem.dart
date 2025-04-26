@@ -86,7 +86,9 @@
 // }
 
 // import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:reto_app/models/product_model.dart';
 
 import '../../inner_screens/product_detail_screen.dart';
@@ -124,19 +126,36 @@ class PopularItem extends StatelessWidget {
               //We are using this so that our Product Image can be Circular
               borderRadius: BorderRadius.circular(6),
               child: Container(
-                width: 140,
+                width: 200,
                 height: 180,
                 decoration: BoxDecoration(
                   color: const Color.fromARGB(255, 255, 255, 255),
                   borderRadius: BorderRadius.circular(5),
                 ),
 
-                child: Image.network(
-                  productData
-                      .productImage[0], //Displaying only the first image of the Product.
-                  width: 91,
-                  height: 101,
+                child: CachedNetworkImage(
+                  imageUrl:
+                      productData.productImage[0], // URL of the product image
+                  width: 201,
+                  height: 201,
                   fit: BoxFit.contain,
+                  placeholder:
+                      (context, url) => Center(
+                        child: SizedBox(
+                          width: 30, // Custom size for the progress indicator
+                          height: 30,
+                          child: CircularProgressIndicator(
+                            strokeWidth:
+                                2.5, // Thinner stroke for a cleaner look
+                            color:
+                                Colors
+                                    .blueAccent, // Custom color for the progress indicator
+                          ),
+                        ),
+                      ),
+                  errorWidget:
+                      (context, url, error) =>
+                          const Icon(Icons.error), // Error widget
                 ),
               ),
             ),
@@ -158,11 +177,12 @@ class PopularItem extends StatelessWidget {
             const SizedBox(height: 5),
             Text(
               '₹${productData.discount}', //Displaying the discounted price as this is the price that the customer will pay for the product
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 color: Color(0xFF1E3354),
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.4,
+                fontFamily: GoogleFonts.alefTextTheme().bodyLarge?.fontFamily,
               ),
             ),
 
@@ -170,11 +190,15 @@ class PopularItem extends StatelessWidget {
             Center(
               child: Text(
                 productData.productName, //Displaying the Product Name.
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
-                  color: Color.fromARGB(255, 0, 0, 0),
+                  color: const Color.fromARGB(255, 0, 0, 0),
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.4,
+                  fontFamily:
+                      GoogleFonts.ralewayTextTheme()
+                          .bodyLarge
+                          ?.fontFamily, // Using Google Fonts for the product name
                 ),
               ),
             ),

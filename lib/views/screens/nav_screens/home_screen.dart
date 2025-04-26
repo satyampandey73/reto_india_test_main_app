@@ -3,16 +3,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:reto_app/models/product_model.dart';
 import 'package:reto_app/provider/product_provider.dart';
+import 'package:reto_app/views/screens/authentication_screens/login_screen.dart';
 import 'package:reto_app/views/screens/inner_screens/shipping_address_screen.dart';
 import 'package:reto_app/views/screens/nav_screens/reuseable_text_widget.dart';
 import 'package:reto_app/views/screens/nav_screens/widgets/animated_text_widget.dart';
 import 'package:reto_app/views/screens/nav_screens/widgets/banner_widget.dart';
 import 'package:reto_app/views/screens/nav_screens/widgets/category_item.dart';
 import 'package:reto_app/views/screens/nav_screens/widgets/icon_widget.dart';
+import 'package:reto_app/views/screens/nav_screens/widgets/marqueetext.dart';
 import 'package:reto_app/views/screens/nav_screens/widgets/popular_product_widget.dart';
 import 'package:reto_app/views/screens/nav_screens/widgets/recommended_product_widget.dart';
+import 'package:reto_app/views/screens/nav_screens/widgets/scrollintextwidget.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   HomeScreen({super.key});
@@ -81,7 +85,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           child: Container(
             width: 350,
             decoration: BoxDecoration(
-              color: Color.fromARGB(255, 255, 219, 193),
+              color: const Color(0xFFFFE3C5),
               borderRadius: BorderRadius.circular(20),
             ),
             child: TextField(
@@ -102,7 +106,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         )
                         : null,
                 border: InputBorder.none,
-                hintText: 'Wooden Mandir',
+                hintText: 'Search Products',
                 contentPadding: const EdgeInsets.symmetric(
                   vertical: 10.0,
                   horizontal: 16.0,
@@ -114,41 +118,97 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(50),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
-            child: TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ShippingAddressScreen(),
+          child: TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ShippingAddressScreen(),
+                ),
+              );
+            },
+            child: StreamBuilder<DocumentSnapshot>(
+              stream:
+                  _auth.currentUser != null
+                      ? FirebaseFirestore.instance
+                          .collection("customers")
+                          .doc(_auth.currentUser!.uid)
+                          .snapshots()
+                      : null,
+              builder: (context, snapshot) {
+                if (_auth.currentUser == null) {
+                  return SizedBox(
+                    height: 30,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) =>
+                                    LoginScreen(), // Replace with your Sign In screen widget
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            Colors.white, // Set background color to white
+                        elevation: 0, // Remove shadow
+                        minimumSize: Size.zero, // Remove minimum size
+                        padding: EdgeInsets.zero, // Remove padding
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            8,
+                          ), // Optional: Rounded corners
+                          side: BorderSide.none, // No border
+                        ),
+                      ),
+                      child: Text(
+                        "Sign In & Explore",
+                        style: TextStyle(
+                          color: Colors.black, // Set text color to black
+                          fontSize: 22,
+                          fontFamily:
+                              GoogleFonts.raleway()
+                                  .fontFamily, // Optional: Adjust font size
+                        ),
+                      ),
+                    ),
+                  );
+                }
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Text(
+                    "Loading...",
+                    style: TextStyle(
+                      color: Colors.black, // Set text color to black
+                      fontSize: 22,
+                      fontFamily:
+                          GoogleFonts.raleway()
+                              .fontFamily, // Optional: Adjust font size
+                    ),
+                  );
+                }
+                if (!snapshot.hasData || !snapshot.data!.exists) {
+                  return Text(
+                    "Add Shipping Address",
+                    style: TextStyle(
+                      color: Colors.black, // Set text color to black
+                      fontSize: 22,
+                      fontFamily:
+                          GoogleFonts.raleway()
+                              .fontFamily, // Optional: Adjust font size
+                    ),
+                  );
+                }
+                return Text(
+                  "${snapshot.data!["name"]} - ${snapshot.data!["city"]} ${snapshot.data!["pinCode"]}",
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Color.fromARGB(255, 42, 42, 42),
+                    fontFamily: GoogleFonts.notoSansMahajani().fontFamily,
                   ),
                 );
               },
-              child: StreamBuilder<DocumentSnapshot>(
-                stream:
-                    _auth.currentUser != null
-                        ? FirebaseFirestore.instance
-                            .collection("customers")
-                            .doc(_auth.currentUser!.uid)
-                            .snapshots()
-                        : null,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Text("Loading...");
-                  }
-                  if (!snapshot.hasData || !snapshot.data!.exists) {
-                    return const Text("Add Shipping Address");
-                  }
-                  return Text(
-                    "${snapshot.data!["name"]} - ${snapshot.data!["city"]} ${snapshot.data!["pinCode"]}",
-                    style: const TextStyle(
-                      fontSize: 18,
-                      color: Color.fromARGB(255, 42, 42, 42),
-                    ),
-                  );
-                },
-              ),
             ),
           ),
         ),
@@ -156,7 +216,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       body: SingleChildScrollView(
         child: Container(
           decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 255, 219, 193),
+            color: const Color(0xFFFFE3C5),
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(50),
               topRight: Radius.circular(50),
@@ -166,6 +226,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             children: [
               const IconWidget(),
               const CategoryItem(),
+              const Scrollintextwidget(),
               const BannerWidget(),
               const ReuseableTextWidget(title: 'Recommended For You'),
               RecommendedProductWidget(
@@ -178,7 +239,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 popularProducts: popularProducts,
               ),
               const SizedBox(height: 20),
-              const AnimatedTextWidget(),
+              // const AnimatedTextWidget(),
               const SizedBox(height: 40),
             ],
           ),

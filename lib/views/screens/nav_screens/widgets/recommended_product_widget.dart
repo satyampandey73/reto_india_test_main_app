@@ -29,7 +29,7 @@ class RecommendedProductWidgetState extends State<RecommendedProductWidget> {
       return const Center(
         child: Text(
           'No items found',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500,fontFamily: 'Roboto',),
         ),
       );
     }

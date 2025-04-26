@@ -1,5 +1,4 @@
-
-
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -29,11 +28,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
     //In this below line, we are filtering all this particular product purchased by our Current user.
     final querySnapshot =
-    await FirebaseFirestore.instance
-        .collection('productReviews')
-        .where('productId', isEqualTo: productId)
-        .where('customerId', isEqualTo: user!.uid)
-        .get();
+        await FirebaseFirestore.instance
+            .collection('productReviews')
+            .where('productId', isEqualTo: productId)
+            .where('customerId', isEqualTo: user!.uid)
+            .get();
 
     return querySnapshot.docs.isNotEmpty; //Checking whether its Empty or Not
   }
@@ -41,10 +40,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   //Function to Update Review and Rating in 'products' collection in our Firebase
   Future<void> updateProductRating(String productId) async {
     final querySnapshot =
-    await FirebaseFirestore.instance
-        .collection('productReviews')
-        .where('productId', isEqualTo: productId)
-        .get();
+        await FirebaseFirestore.instance
+            .collection('productReviews')
+            .where('productId', isEqualTo: productId)
+            .get();
 
     double totalRating = 0;
     int totalReviews = querySnapshot.docs.length;
@@ -56,9 +55,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
     //Calculating Average Rating
     final double averageRating =
-    totalReviews > 0
-        ? totalRating / totalReviews
-        : 0; //If Total Reviews is greater than 0 then calculate average rating or else it will be 0 which is our default.
+        totalReviews > 0
+            ? totalRating / totalReviews
+            : 0; //If Total Reviews is greater than 0 then calculate average rating or else it will be 0 which is our default.
 
     //Updating Rating and Reviews in our Firebase in 'products' collection.
     await FirebaseFirestore.instance
@@ -130,11 +129,20 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                     Positioned(
                                       left: 10,
                                       top: 5,
-                                      child: Image.network(
-                                        widget.orderData['productImage'],
-                                        width: 58, //Width of Image
-                                        height: 67, //Height of Image
+                                      child: CachedNetworkImage(
+                                        imageUrl:
+                                            widget
+                                                .orderData['productImage'], // URL of the product image
+                                        width: 58, // Width of the image
+                                        height: 67, // Height of the image
                                         fit: BoxFit.cover,
+                                        placeholder:
+                                            (context, url) =>
+                                                const CircularProgressIndicator(), // Placeholder while loading
+                                        errorWidget:
+                                            (context, url, error) => const Icon(
+                                              Icons.error,
+                                            ), // Error widget
                                       ),
                                     ),
                                   ],
@@ -149,14 +157,14 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                 width: 216,
                                 child: Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Expanded(
                                       child: SizedBox(
                                         width: double.infinity,
                                         child: Column(
                                           mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                              MainAxisAlignment.spaceBetween,
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             //Displaying Product Name
@@ -229,23 +237,23 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                               top: 114,
                               child: Container(
                                 width:
-                                90, //Width of the Box where status will be shown
+                                    90, //Width of the Box where status will be shown
                                 height:
-                                25, //Height of the Box where status will be shown
+                                    25, //Height of the Box where status will be shown
                                 clipBehavior: Clip.antiAlias,
                                 decoration: BoxDecoration(
                                   //Color depending on the status of Order Delivery
                                   color:
-                                  widget.orderData['delivered'] == true
-                                      ? Color(
-                                    0xFF3C55EF,
-                                  ) //This color will be shown when the order has been delivered.
-                                      : widget.orderData['processing'] ==
-                                      true
-                                      ? Colors
-                                      .purple //This color will be shown when the order is in processing.
-                                      : Colors
-                                      .red, //This color will be shown when the order is cancelled.
+                                      widget.orderData['delivered'] == true
+                                          ? Color(
+                                            0xFF3C55EF,
+                                          ) //This color will be shown when the order has been delivered.
+                                          : widget.orderData['processing'] ==
+                                              true
+                                          ? Colors
+                                              .purple //This color will be shown when the order is in processing.
+                                          : Colors
+                                              .red, //This color will be shown when the order is cancelled.
 
                                   borderRadius: BorderRadius.circular(4),
                                 ),
@@ -261,7 +269,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                         widget.orderData['delivered'] == true
                                             ? 'Delivered' //This text will be shown when the order has been delivered.
                                             : widget.orderData['processing'] ==
-                                            true
+                                                true
                                             ? 'Processing' //This text will be shown when the order is in processing.
                                             : 'Cancelled', //This text will be shown when the order is cancelled.
 
@@ -292,7 +300,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                         height: 20,
                         clipBehavior: Clip.antiAlias,
                         decoration:
-                        BoxDecoration(), //IMPORTANT: Whenever we are using clipBehaviour, BoxDecoration is compulsory to mention even when we are not using it.
+                            BoxDecoration(), //IMPORTANT: Whenever we are using clipBehaviour, BoxDecoration is compulsory to mention even when we are not using it.
                         child: Stack(clipBehavior: Clip.none, children: [
 
                         ],
@@ -379,234 +387,231 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   //
                   widget.orderData['delivered'] == true
                       ? Padding(
-                    //We will be allowed to give Review and Rating only when the Product has been delivered.
-                    padding: const EdgeInsets.all(10.0),
-                    child: ElevatedButton(
-                      //If the product is delivered then show Review button for feedback
-                      onPressed: () async {
-                        final productId = widget.orderData['productId'];
+                        //We will be allowed to give Review and Rating only when the Product has been delivered.
+                        padding: const EdgeInsets.all(10.0),
+                        child: ElevatedButton(
+                          //If the product is delivered then show Review button for feedback
+                          onPressed: () async {
+                            final productId = widget.orderData['productId'];
 
-                        final hasReviewed = await hasUserReviewedProduct(
-                          productId,
-                        );
+                            final hasReviewed = await hasUserReviewedProduct(
+                              productId,
+                            );
 
-                        if (hasReviewed) {
-                          //IF THE USER HAS REVIEWED
+                            if (hasReviewed) {
+                              //IF THE USER HAS REVIEWED
 
+                              //NEW CODE, now user can update his/her Review.
 
-                          //NEW CODE, now user can update his/her Review.
-
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: const Text('Update Review'),
-                                content: Column(
-                                  mainAxisSize:
-                                  MainAxisSize
-                                      .min, //This will shrink the Box only up to the spaces taken by the Widgets, its a very important thing.
-                                  children: [
-                                    TextFormField(
-                                      controller:
-                                      _reviewController, //Accessing the value of the Text Form Field
-                                      decoration: const InputDecoration(
-                                        labelText: 'Update Your Review',
-                                      ),
-                                    ),
-
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: RatingBar.builder(
-                                        initialRating:
-                                        rating, //This is the initial rating of every product and by default it's 0 because we defined 'rating' variable with value 0 at the top in the beginning.
-                                        direction: Axis.horizontal,
-                                        minRating:
-                                        1, //Minimum Rating a Customer can Give
-                                        maxRating:
-                                        5, //Maximum Rating a Customer can Give
-                                        allowHalfRating:
-                                        true, //Customer can give half rating like 2.5, etc.
-                                        itemSize: 24,
-                                        unratedColor: Colors.grey,
-                                        itemCount:
-                                        5, //Total 5 stars will be there
-                                        itemPadding: EdgeInsets.symmetric(
-                                          horizontal: 4,
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: const Text('Update Review'),
+                                    content: Column(
+                                      mainAxisSize:
+                                          MainAxisSize
+                                              .min, //This will shrink the Box only up to the spaces taken by the Widgets, its a very important thing.
+                                      children: [
+                                        TextFormField(
+                                          controller:
+                                              _reviewController, //Accessing the value of the Text Form Field
+                                          decoration: const InputDecoration(
+                                            labelText: 'Update Your Review',
+                                          ),
                                         ),
 
-                                        itemBuilder: (context, _) {
-                                          return const Icon(
-                                            Icons.star, //Star Icon
-                                            color: Colors.amber,
-                                          );
-                                        },
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: RatingBar.builder(
+                                            initialRating:
+                                                rating, //This is the initial rating of every product and by default it's 0 because we defined 'rating' variable with value 0 at the top in the beginning.
+                                            direction: Axis.horizontal,
+                                            minRating:
+                                                1, //Minimum Rating a Customer can Give
+                                            maxRating:
+                                                5, //Maximum Rating a Customer can Give
+                                            allowHalfRating:
+                                                true, //Customer can give half rating like 2.5, etc.
+                                            itemSize: 24,
+                                            unratedColor: Colors.grey,
+                                            itemCount:
+                                                5, //Total 5 stars will be there
+                                            itemPadding: EdgeInsets.symmetric(
+                                              horizontal: 4,
+                                            ),
 
-                                        onRatingUpdate: (value) {
-                                          rating = value;
-                                          print(rating);
-                                        },
-                                      ),
+                                            itemBuilder: (context, _) {
+                                              return const Icon(
+                                                Icons.star, //Star Icon
+                                                color: Colors.amber,
+                                              );
+                                            },
+
+                                            onRatingUpdate: (value) {
+                                              rating = value;
+                                              print(rating);
+                                            },
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
 
-                                actions: [
-                                  TextButton(
-                                    onPressed: () async {
-                                      final review =
-                                          _reviewController
-                                              .text; //Storing our review submitted by the customer in this variable.
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () async {
+                                          final review =
+                                              _reviewController
+                                                  .text; //Storing our review submitted by the customer in this variable.
 
-                                      //Updating collection in Firebase named 'productReviews'. //USED '.update' here.
-                                      await FirebaseFirestore.instance
-                                          .collection('productReviews')
-                                          .doc(widget.orderData['orderId'])
-                                          .update({
-                                        'reviewId':
-                                        widget.orderData['orderId'],
-                                        'productId':
-                                        widget
-                                            .orderData['productId'],
-                                        'name':
-                                        widget.orderData['name'],
-                                        'email':
-                                        widget.orderData['email'],
-                                        'customerId':
-                                        FirebaseAuth
-                                            .instance
-                                            .currentUser!
-                                            .uid,
-                                        'rating': rating,
-                                        'review': review,
-                                        'timeStamp':
-                                        Timestamp.now(), //Time at which the Review has been submitted.
-                                      })
-                                          .whenComplete(() {
-                                        //What will happen when the above function has been completed.
-                                        updateProductRating(productId);
-                                        Navigator.of(context).pop();
-                                        _reviewController.clear();
-                                        rating = 0;
-                                      });
-                                    },
+                                          //Updating collection in Firebase named 'productReviews'. //USED '.update' here.
+                                          await FirebaseFirestore.instance
+                                              .collection('productReviews')
+                                              .doc(widget.orderData['orderId'])
+                                              .update({
+                                                'reviewId':
+                                                    widget.orderData['orderId'],
+                                                'productId':
+                                                    widget
+                                                        .orderData['productId'],
+                                                'name':
+                                                    widget.orderData['name'],
+                                                'email':
+                                                    widget.orderData['email'],
+                                                'customerId':
+                                                    FirebaseAuth
+                                                        .instance
+                                                        .currentUser!
+                                                        .uid,
+                                                'rating': rating,
+                                                'review': review,
+                                                'timeStamp':
+                                                    Timestamp.now(), //Time at which the Review has been submitted.
+                                              })
+                                              .whenComplete(() {
+                                                //What will happen when the above function has been completed.
+                                                updateProductRating(productId);
+                                                Navigator.of(context).pop();
+                                                _reviewController.clear();
+                                                rating = 0;
+                                              });
+                                        },
 
-                                    child: const Text('Submit'),
-                                  ),
-                                ],
+                                        child: const Text('Submit'),
+                                      ),
+                                    ],
+                                  );
+                                },
                               );
-                            },
-                          );
-                        } else //IF THE USER HAS NOT REVIEWED
+                            } else //IF THE USER HAS NOT REVIEWED
                             {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: const Text('Give a Review'),
-                                content: Column(
-                                  mainAxisSize:
-                                  MainAxisSize
-                                      .min, //This will shrink the Box only up to the spaces taken by the Widgets, its a very important thing.
-                                  children: [
-                                    TextFormField(
-                                      controller:
-                                      _reviewController, //Accessing the value of the Text Form Field
-                                      decoration: const InputDecoration(
-                                        labelText: 'Your Review',
-                                      ),
-                                    ),
-
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: RatingBar.builder(
-                                        initialRating:
-                                        rating, //This is the initial rating of every product and by default it's 0 because we defined 'rating' variable with value 0 at the top in the beginning.
-                                        direction: Axis.horizontal,
-                                        minRating:
-                                        1, //Minimum Rating a Customer can Give
-                                        maxRating:
-                                        5, //Maximum Rating a Customer can Give
-                                        allowHalfRating:
-                                        true, //Customer can give half rating like 2.5, etc.
-                                        itemSize: 24,
-                                        unratedColor: Colors.grey,
-                                        itemCount:
-                                        5, //Total 5 stars will be there
-                                        itemPadding: EdgeInsets.symmetric(
-                                          horizontal: 4,
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: const Text('Give a Review'),
+                                    content: Column(
+                                      mainAxisSize:
+                                          MainAxisSize
+                                              .min, //This will shrink the Box only up to the spaces taken by the Widgets, its a very important thing.
+                                      children: [
+                                        TextFormField(
+                                          controller:
+                                              _reviewController, //Accessing the value of the Text Form Field
+                                          decoration: const InputDecoration(
+                                            labelText: 'Your Review',
+                                          ),
                                         ),
 
-                                        itemBuilder: (context, _) {
-                                          return const Icon(
-                                            Icons.star, //Star Icon
-                                            color: Colors.amber,
-                                          );
-                                        },
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: RatingBar.builder(
+                                            initialRating:
+                                                rating, //This is the initial rating of every product and by default it's 0 because we defined 'rating' variable with value 0 at the top in the beginning.
+                                            direction: Axis.horizontal,
+                                            minRating:
+                                                1, //Minimum Rating a Customer can Give
+                                            maxRating:
+                                                5, //Maximum Rating a Customer can Give
+                                            allowHalfRating:
+                                                true, //Customer can give half rating like 2.5, etc.
+                                            itemSize: 24,
+                                            unratedColor: Colors.grey,
+                                            itemCount:
+                                                5, //Total 5 stars will be there
+                                            itemPadding: EdgeInsets.symmetric(
+                                              horizontal: 4,
+                                            ),
 
-                                        onRatingUpdate: (value) {
-                                          rating = value;
-                                          print(rating);
-                                        },
-                                      ),
+                                            itemBuilder: (context, _) {
+                                              return const Icon(
+                                                Icons.star, //Star Icon
+                                                color: Colors.amber,
+                                              );
+                                            },
+
+                                            onRatingUpdate: (value) {
+                                              rating = value;
+                                              print(rating);
+                                            },
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
 
-                                actions: [
-                                  TextButton(
-                                    onPressed: () async {
-                                      final review =
-                                          _reviewController
-                                              .text; //Storing our review submitted by the customer in this variable.
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () async {
+                                          final review =
+                                              _reviewController
+                                                  .text; //Storing our review submitted by the customer in this variable.
 
+                                          //Creating a new collection in Firebase named 'productReviews'. //USED '.set' here and added one new field, this one is designed to update review section.
+                                          await FirebaseFirestore.instance
+                                              .collection('productReviews')
+                                              .doc(widget.orderData['orderId'])
+                                              .set({
+                                                'reviewId':
+                                                    widget
+                                                        .orderData['orderId'], //This is the new field that is added
+                                                'productId':
+                                                    widget
+                                                        .orderData['productId'],
+                                                'name':
+                                                    widget.orderData['name'],
+                                                'email':
+                                                    widget.orderData['email'],
+                                                'customerId':
+                                                    FirebaseAuth
+                                                        .instance
+                                                        .currentUser!
+                                                        .uid,
+                                                'rating': rating,
+                                                'review': review,
+                                                'timeStamp':
+                                                    Timestamp.now(), //Time at which the Review has been submitted.
+                                              })
+                                              .whenComplete(() {
+                                                //What will happen when the above function has been completed.
+                                                updateProductRating(productId);
+                                                Navigator.of(context).pop();
+                                                _reviewController.clear();
+                                                rating = 0;
+                                              });
+                                        },
 
-
-                                      //Creating a new collection in Firebase named 'productReviews'. //USED '.set' here and added one new field, this one is designed to update review section.
-                                      await FirebaseFirestore.instance
-                                          .collection('productReviews')
-                                          .doc(widget.orderData['orderId'])
-                                          .set({
-                                        'reviewId':
-                                        widget
-                                            .orderData['orderId'], //This is the new field that is added
-                                        'productId':
-                                        widget
-                                            .orderData['productId'],
-                                        'name':
-                                        widget.orderData['name'],
-                                        'email':
-                                        widget.orderData['email'],
-                                        'customerId':
-                                        FirebaseAuth
-                                            .instance
-                                            .currentUser!
-                                            .uid,
-                                        'rating': rating,
-                                        'review': review,
-                                        'timeStamp':
-                                        Timestamp.now(), //Time at which the Review has been submitted.
-                                      })
-                                          .whenComplete(() {
-                                        //What will happen when the above function has been completed.
-                                        updateProductRating(productId);
-                                        Navigator.of(context).pop();
-                                        _reviewController.clear();
-                                        rating = 0;
-                                      });
-                                    },
-
-                                    child: const Text('Submit'),
-                                  ),
-                                ],
+                                        child: const Text('Submit'),
+                                      ),
+                                    ],
+                                  );
+                                },
                               );
-                            },
-                          );
-                        }
-                      },
+                            }
+                          },
 
-                      child: const Text('Review'),
-                    ),
-                  )
+                          child: const Text('Review'),
+                        ),
+                      )
                       : const SizedBox(), //If the product is not delivered then show nothing,i.e., this empty Sized Box.
                   //END OF REVIEW AND RATING SECTION
                 ],

@@ -93,7 +93,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 children: [
                   Text(
                     //LOGIN Text
-                    "RadianceLOGIN",
+                    "LOGIN",
                     style: GoogleFonts.getFont(
                       'Lexend',
                       color: Color(0xFF0d120E),

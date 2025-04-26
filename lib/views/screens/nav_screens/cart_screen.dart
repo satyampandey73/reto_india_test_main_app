@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
 
     return Scaffold(
       //Start of APP BAR
+      backgroundColor: Color.fromARGB(255, 255, 255, 255),
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(
           MediaQuery.of(context).size.height * 0.20,
@@ -41,7 +43,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
           height: 100, //Height of the container
           clipBehavior: Clip.hardEdge,
           decoration: const BoxDecoration(
-            color: Color.fromARGB(255, 250, 197, 159),
+            color: Color.fromARGB(255, 251, 178, 99),
             // image: DecorationImage(
             //   image: AssetImage('assets/icons/cartb.png',), //Cart Icon
             //   fit: BoxFit.cover, //This will actually make our App Bar cover the entire screen width
@@ -375,10 +377,19 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                                 height: 120, //150,
                                                 //Height and Width of the box inside which our image will be displayed but as our image will take up the entire box so changing these dimensions will change the height and width of our image as well.
                                                 width: 90, //100,
-                                                child: Image.network(
-                                                  cartItem
-                                                      .productImage[0], //As a single product may have multiple images but we want to display only the first image so we are mentioning '[0]'.
+                                                child: CachedNetworkImage(
+                                                  imageUrl:
+                                                      cartItem
+                                                          .productImage[0], // URL of the product image
                                                   fit: BoxFit.cover,
+                                                  placeholder:
+                                                      (context, url) =>
+                                                          const CircularProgressIndicator(), // Placeholder while loading
+                                                  errorWidget:
+                                                      (context, url, error) =>
+                                                          const Icon(
+                                                            Icons.error,
+                                                          ), // Error widget
                                                 ),
                                               ),
                                             ),
@@ -596,7 +607,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                     Container(
                       padding: EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Color.fromARGB(25, 248, 186, 94),
+                        color: Color(0xFFFFE3C5),
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(25),
                           topRight: Radius.circular(10),
@@ -641,58 +652,61 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                               Spacer(),
                             ],
                           ),
-                          ElevatedButton(
-                            onPressed: () async {
-                              final user = FirebaseAuth.instance.currentUser;
-                              if (user != null) {
-                                // User is logged in, navigate to CheckoutScreen
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) {
-                                      return CheckoutScreen(
-                                        totalPrice: totalAmount,
-                                      );
-                                    },
-                                  ),
-                                );
-                              } else {
-                                // User is not logged in, navigate to LoginScreen
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => LoginScreen(),
-                                  ),
-                                );
-                              }
-                            },
-                            style: ButtonStyle(
-                              backgroundColor: WidgetStatePropertyAll(
-                                totalAmount == 0.0
-                                    ? Colors.grey
-                                    : Color.fromARGB(210, 248, 186, 94),
+                          Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                final user = FirebaseAuth.instance.currentUser;
+                                if (user != null) {
+                                  // User is logged in, navigate to CheckoutScreen
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) {
+                                        return CheckoutScreen(
+                                          totalPrice: totalAmount,
+                                        );
+                                      },
+                                    ),
+                                  );
+                                } else {
+                                  // User is not logged in, navigate to LoginScreen
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => LoginScreen(),
+                                    ),
+                                  );
+                                }
+                              },
+                              style: ButtonStyle(
+                                backgroundColor: WidgetStatePropertyAll(
+                                  totalAmount == 0.0
+                                      ? Colors.grey
+                                      : Color.fromARGB(210, 248, 186, 94),
+                                ),
                               ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Spacer(),
-                                Text(
-                                  'CheckOut',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    // letterSpacing: 1,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w900,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Spacer(),
+                                  Text(
+                                    'CheckOut',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      // letterSpacing: 1,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w900,
+                                    ),
                                   ),
-                                ),
-                                Spacer(),
-                                Icon(
-                                  Icons.arrow_forward_ios,
-                                  color: Colors.white,
-                                ),
-                              ],
+                                  Spacer(),
+                                  Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: Colors.white,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],

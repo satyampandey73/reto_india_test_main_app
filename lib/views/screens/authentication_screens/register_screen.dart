@@ -55,25 +55,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
         await user.sendEmailVerification();
         Navigator.pushReplacement(
           localContext,
-          MaterialPageRoute(builder: (context) => VerificationScreen()),
+          MaterialPageRoute(builder: (context) => VerificationScreen(contactNumber: contactNumber,name: name,)),
         );
         ScaffoldMessenger.of(localContext).showSnackBar(
           const SnackBar(
             content: Text('Verification email sent. Please verify your email.'),
           ),
         );
-      } else {
-        Navigator.pushAndRemoveUntil(
-          localContext,
-          MaterialPageRoute(builder: (context) => MainScreen(index: 1)),
-          (route) => false,
-        );
-        ScaffoldMessenger.of(localContext).showSnackBar(
-          const SnackBar(
-            content: Text('Account has been Created Successfully'),
-          ),
-        );
       }
+      // else {
+      //   Navigator.pushAndRemoveUntil(
+      //     localContext,
+      //     MaterialPageRoute(builder: (context) => MainScreen(index: 1)),
+      //     (route) => false,
+      //   );
+      //   ScaffoldMessenger.of(localContext).showSnackBar(
+      //     const SnackBar(
+      //       content: Text('Account has been Created Successfully'),
+      //     ),
+      //   );
+      // }
     } else {
       setState(() {
         _isLoading = false;
@@ -105,7 +106,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 children: [
                   Text(
                     //CREATE YOUR ACCOUNT  Heading Text
-                    "Create Your RadianceACCOUNT",
+                    "Create Your ACCOUNT",
                     style: GoogleFonts.getFont(
                       'Lexend',
                       color: Color(0xFF0d120E),
@@ -315,11 +316,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     },
                     validator: (value) {
                       if (value!.trim().isEmpty) {
-                        //If the user has not filled anything in this input box
+                        // If the user has not filled anything in this input box
                         return 'Enter Your Contact Number';
-                      } else {
-                        return null;
+                      } else if (!RegExp(r'^\d{10}$').hasMatch(value.trim())) {
+                        // Check if the input is exactly 10 digits
+                        return 'Contact number must be 10 digits';
                       }
+                      return null;
                     },
                     decoration: InputDecoration(
                       fillColor: Colors.white,

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -29,8 +30,9 @@ class FirebaseService {
 
     try {
       // Create list of product IDs from cart items
-      final List<String> productIds = cartItems.map((item) => item.productId).toList();
-      
+      final List<String> productIds =
+          cartItems.map((item) => item.productId).toList();
+
       // Handle empty cart case
       if (productIds.isEmpty) {
         return unavailableItems;
@@ -41,9 +43,9 @@ class FirebaseService {
       for (var i = 0; i < productIds.length; i += 10) {
         chunks.add(
           productIds.sublist(
-            i, 
-            i + 10 < productIds.length ? i + 10 : productIds.length
-          )
+            i,
+            i + 10 < productIds.length ? i + 10 : productIds.length,
+          ),
         );
       }
 
@@ -52,14 +54,16 @@ class FirebaseService {
 
       // Query Firestore for each chunk
       for (final chunk in chunks) {
-        final QuerySnapshot productSnapshot = await _firestore
-            .collection('products')
-            .where('productId', whereIn: chunk)
-            .get();
+        final QuerySnapshot productSnapshot =
+            await _firestore
+                .collection('products')
+                .where('productId', whereIn: chunk)
+                .get();
 
         // Add documents to the map
         for (var doc in productSnapshot.docs) {
-          productsMap[doc.get('productId')] = doc.data() as Map<String, dynamic>;
+          productsMap[doc.get('productId')] =
+              doc.data() as Map<String, dynamic>;
         }
       }
 
@@ -67,7 +71,7 @@ class FirebaseService {
       for (var cartItem in cartItems) {
         // If product doesn't exist
         if (!productsMap.containsKey(cartItem.productId)) {
-          unavailableItems[cartItem.productId] = 
+          unavailableItems[cartItem.productId] =
               "${cartItem.productName} is no longer available";
           continue;
         }
@@ -76,7 +80,7 @@ class FirebaseService {
 
         // Check if product is sold out
         if (productData['isSoldOut'] == true) {
-          unavailableItems[cartItem.productId] = 
+          unavailableItems[cartItem.productId] =
               "${cartItem.productName} is out of stock";
           continue;
         }
@@ -92,7 +96,7 @@ class FirebaseService {
       print("Error checking inventory: $e");
       // Return a generic error for all items in case of exception
       for (var item in cartItems) {
-        unavailableItems[item.productId] = 
+        unavailableItems[item.productId] =
             "Unable to verify availability of ${item.productName}";
       }
     }
@@ -128,18 +132,18 @@ class FirebaseService {
 
       // Create batch for atomic operations
       final batch = _firestore.batch();
-      
+
       // Map to track product quantity updates
       Map<String, int> productQuantityUpdates = {};
 
       // Reference to orders collection
       final CollectionReference orderRefer = _firestore.collection('orders');
-      
+
       // Add each order to batch
       for (var item in cartItems) {
         final orderId = const Uuid().v4();
         final orderRef = orderRefer.doc(orderId);
-        
+
         // Calculate final price with discount
         final finalPrice = (item.quantity * item.discount) * (1 - discount);
 
@@ -151,7 +155,8 @@ class FirebaseService {
           'quantity': item.quantity,
           'price': finalPrice,
           'category': item.category,
-          'productImage': item.productImage.isNotEmpty ? item.productImage[0] : '',
+          'productImage':
+              item.productImage.isNotEmpty ? item.productImage[0] : '',
           'name': userData['name'] ?? '',
           'email': userData['email'] ?? '',
           'number': userData['number'] ?? '',
@@ -166,19 +171,19 @@ class FirebaseService {
           'vendorId': item.vendorId,
           'createdAt': FieldValue.serverTimestamp(),
         });
-        
+
         // Update product quantity tracking
-        productQuantityUpdates[item.productId] = 
+        productQuantityUpdates[item.productId] =
             (productQuantityUpdates[item.productId] ?? 0) + item.quantity;
       }
 
       // Reference to products collection
       final productsRefer = _firestore.collection('products');
-      
+
       // Update product quantities in the batch
       productQuantityUpdates.forEach((productId, quantityToReduce) {
         final productRef = productsRefer.doc(productId);
-        
+
         // Use increment to safely update quantity
         batch.update(productRef, {
           'quantity': FieldValue.increment(-quantityToReduce),
@@ -192,22 +197,23 @@ class FirebaseService {
       // Run transactions to update soldOut status
       for (String productId in productQuantityUpdates.keys) {
         await _firestore.runTransaction((transaction) async {
-          final productDoc = await transaction.get(productsRefer.doc(productId));
-          
+          final productDoc = await transaction.get(
+            productsRefer.doc(productId),
+          );
+
           if (productDoc.exists) {
             final currentQuantity = productDoc.get('quantity') ?? 0;
-            
+
             // If quantity is zero or less, mark as sold out
             if (currentQuantity <= 0) {
-              transaction.update(
-                productsRefer.doc(productId),
-                {'isSoldOut': true},
-              );
+              transaction.update(productsRefer.doc(productId), {
+                'isSoldOut': true,
+              });
             }
           }
         });
       }
-      
+
       return true;
     } catch (e) {
       onError("Order placement failed: ${e.toString()}");
@@ -219,9 +225,11 @@ class FirebaseService {
 // Create error handler utility
 class ErrorHandler {
   static void showErrorDialog(
-    BuildContext context, 
-    {required String title, required String message, Function()? onDismiss}
-  ) {
+    BuildContext context, {
+    required String title,
+    required String message,
+    Function()? onDismiss,
+  }) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -244,9 +252,10 @@ class ErrorHandler {
   }
 
   static void showSnackBar(
-    BuildContext context, 
-    {required String message, bool isError = false}
-  ) {
+    BuildContext context, {
+    required String message,
+    bool isError = false,
+  }) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: isError ? Colors.red : Colors.grey,
@@ -287,14 +296,14 @@ class CheckoutScreen extends ConsumerStatefulWidget {
 class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   // Services
   final FirebaseService _firebaseService = FirebaseService();
-  
+
   // State variables
   String _selectedPaymentMethod = 'cashOnDelivery';
   final TextEditingController _couponController = TextEditingController();
   bool _isApplied = false;
   double _discount = 0;
   bool _isLoading = false;
-  
+
   // Address data
   String _state = '';
   String _city = '';
@@ -319,33 +328,35 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final userId = _firebaseService.currentUserId;
     if (userId == null) {
       ErrorHandler.showSnackBar(
-        context, 
+        context,
         message: 'User authentication failed. Please login again.',
         isError: true,
       );
       return;
     }
 
-    _firebaseService.getUserDataStream(userId).listen(
-      (userData) {
-        if (userData.exists) {
-          setState(() {
-            _userData = userData.data() as Map<String, dynamic>;
-            _state = _userData['state'] ?? '';
-            _city = _userData['city'] ?? '';
-            _locality = _userData['locality'] ?? '';
-            _pinCode = _userData['pinCode'] ?? '';
-          });
-        }
-      },
-      onError: (error) {
-        ErrorHandler.showSnackBar(
-          context, 
-          message: 'Failed to load user data: $error',
-          isError: true,
+    _firebaseService
+        .getUserDataStream(userId)
+        .listen(
+          (userData) {
+            if (userData.exists) {
+              setState(() {
+                _userData = userData.data() as Map<String, dynamic>;
+                _state = _userData['state'] ?? '';
+                _city = _userData['city'] ?? '';
+                _locality = _userData['locality'] ?? '';
+                _pinCode = _userData['pinCode'] ?? '';
+              });
+            }
+          },
+          onError: (error) {
+            ErrorHandler.showSnackBar(
+              context,
+              message: 'Failed to load user data: $error',
+              isError: true,
+            );
+          },
         );
-      }
-    );
   }
 
   // Apply coupon code
@@ -389,51 +400,54 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final bool? confirm = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text("Confirm Order"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("You are choosing Cash on Delivery method."),
-            const SizedBox(height: 10),
-            RichText(
-              text: const TextSpan(
-                style: TextStyle(color: Colors.black, fontSize: 12),
-                children: [
-                  TextSpan(text: "By confirming, you agree that "),
-                  TextSpan(
-                    text: "fraudulent or fake orders ",
-                    style: TextStyle(color: Colors.red),
+      builder:
+          (BuildContext context) => AlertDialog(
+            title: const Text("Confirm Order"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("You are choosing Cash on Delivery method."),
+                const SizedBox(height: 10),
+                RichText(
+                  text: const TextSpan(
+                    style: TextStyle(color: Colors.black, fontSize: 12),
+                    children: [
+                      TextSpan(text: "By confirming, you agree that "),
+                      TextSpan(
+                        text: "fraudulent or fake orders ",
+                        style: TextStyle(color: Colors.red),
+                      ),
+                      TextSpan(
+                        text:
+                            "may lead to legal proceedings under Section 420 of IPC ",
+                      ),
+                    ],
                   ),
-                  TextSpan(
-                    text: "may lead to legal proceedings under Section 420 of IPC ",
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text("CANCEL"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text("CANCEL"),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text("CONFIRM"),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text("CONFIRM"),
-          ),
-        ],
-      ),
     );
 
     if (confirm != true) return;
 
     setState(() => _isLoading = true);
-    
+
     try {
-      final cartItems = ref.read(cartProvider.notifier).getCartItem.values.toList();
-      
+      final cartItems =
+          ref.read(cartProvider.notifier).getCartItem.values.toList();
+
       // Place order
       final success = await _firebaseService.placeOrder(
         cartItems: cartItems,
@@ -443,7 +457,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           ErrorHandler.showErrorDialog(
             context,
             title: 'Order Failed',
-            message: 'Some items in your cart are unavailable:\n\n$errorMessage\n\nPlease update your cart and try again.',
+            message:
+                'Some items in your cart are unavailable:\n\n$errorMessage\n\nPlease update your cart and try again.',
           );
         },
       );
@@ -451,14 +466,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       if (success) {
         // Clear cart on success
         ref.read(cartProvider.notifier).clearCartData();
-        
+
         // Navigate to main screen
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const MainScreen(index: 1)),
           (route) => false,
         );
-        
+
         ErrorHandler.showSnackBar(context, message: 'Order Has Been Placed');
       }
     } catch (e) {
@@ -581,7 +596,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      _state.isNotEmpty ? '$_city, $_state - $_pinCode' : 'Enter City',
+                      _state.isNotEmpty
+                          ? '$_city, $_state - $_pinCode'
+                          : 'Enter City',
                       style: TextStyle(
                         fontSize: 12,
                         color: const Color(0xFF7F808C),
@@ -653,14 +670,21 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               height: 70,
               clipBehavior: Clip.hardEdge,
               decoration: const BoxDecoration(color: Color(0xFFBCC5FF)),
-              child: cartItem.productImage.isNotEmpty
-                  ? Image.network(
-                      cartItem.productImage[0],
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => 
-                          const Icon(Icons.image_not_supported),
-                    )
-                  : const Icon(Icons.image_not_supported),
+              child:
+                  cartItem.productImage.isNotEmpty
+                      ? CachedNetworkImage(
+                        imageUrl:
+                            cartItem
+                                .productImage[0], // URL of the product image
+                        fit: BoxFit.cover,
+                        placeholder:
+                            (context, url) =>
+                                const CircularProgressIndicator(), // Placeholder while loading
+                        errorWidget:
+                            (context, url, error) =>
+                                const Icon(Icons.error), // Error widget
+                      )
+                      : const Icon(Icons.image_not_supported),
             ),
           ),
           const SizedBox(width: 6),
@@ -693,17 +717,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 if (cartItem.productSize.isNotEmpty)
                   Text(
                     "Size: ${cartItem.productSize}",
-                    style: const TextStyle(
-                      color: Colors.black54,
-                      fontSize: 12,
-                    ),
+                    style: const TextStyle(color: Colors.black54, fontSize: 12),
                   ),
                 Text(
                   "Quantity: ${cartItem.quantity}",
-                  style: const TextStyle(
-                    color: Colors.black54,
-                    fontSize: 12,
-                  ),
+                  style: const TextStyle(color: Colors.black54, fontSize: 12),
                 ),
               ],
             ),
@@ -732,7 +750,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final cartProviderData = ref.watch(cartProvider);
     final cartItems = cartProviderData.values.toList();
     final double discountedTotal = widget.totalPrice * (1.0 - _discount);
-    
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -758,17 +776,17 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 children: [
                   // Shipping Address Section
                   _buildAddressCard(),
-                  
+
                   const SizedBox(height: 15),
-                  
+
                   // Items Header
                   const Text(
                     'Your Item(s)',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
                   ),
-                  
+
                   const SizedBox(height: 15),
-                  
+
                   // Items List Section
                   Container(
                     decoration: BoxDecoration(
@@ -780,33 +798,37 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     constraints: BoxConstraints(
                       maxHeight: MediaQuery.of(context).size.height * 0.36,
                     ),
-                    child: cartItems.isEmpty
-                        ? const Center(
-                            child: Text(
-                              'Your cart is empty',
-                              style: TextStyle(fontSize: 16),
+                    child:
+                        cartItems.isEmpty
+                            ? const Center(
+                              child: Text(
+                                'Your cart is empty',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            )
+                            : ListView.separated(
+                              shrinkWrap: true,
+                              physics: const ScrollPhysics(),
+                              itemBuilder:
+                                  (context, index) =>
+                                      _buildCartItem(cartItems[index]),
+                              separatorBuilder:
+                                  (context, index) => Divider(
+                                    color: Colors.grey.shade300,
+                                    indent: 5,
+                                    endIndent: 5,
+                                  ),
+                              itemCount: cartItems.length,
                             ),
-                          )
-                        : ListView.separated(
-                            shrinkWrap: true,
-                            physics: const ScrollPhysics(),
-                            itemBuilder: (context, index) => _buildCartItem(cartItems[index]),
-                            separatorBuilder: (context, index) => Divider(
-                              color: Colors.grey.shade300,
-                              indent: 5,
-                              endIndent: 5,
-                            ),
-                            itemCount: cartItems.length,
-                          ),
                   ),
-                  
+
                   const SizedBox(height: 14),
-                  
+
                   // Coupon Section
                   _buildCouponRow(),
-                  
+
                   const SizedBox(height: 10),
-                  
+
                   // Total Price Section
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -824,8 +846,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                             "₹${widget.totalPrice.toStringAsFixed(2)}",
                             style: TextStyle(
                               fontSize: 18,
-                              fontWeight: _isApplied ? FontWeight.normal : FontWeight.bold,
-                              decoration: _isApplied ? TextDecoration.lineThrough : TextDecoration.none,
+                              fontWeight:
+                                  _isApplied
+                                      ? FontWeight.normal
+                                      : FontWeight.bold,
+                              decoration:
+                                  _isApplied
+                                      ? TextDecoration.lineThrough
+                                      : TextDecoration.none,
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -841,17 +869,17 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       ),
                     ],
                   ),
-                  
+
                   const Divider(color: Colors.black12, height: 24),
-                  
+
                   // Payment Options Section
                   const Text(
                     'Choose Payment Method',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  
+
                   const SizedBox(height: 4),
-                  
+
                   RadioListTile<String>(
                     title: const Text('Cash on Delivery'),
                     value: 'cashOnDelivery',
@@ -862,7 +890,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       }
                     },
                   ),
-                  
+
                   const SizedBox(height: 100), // Space for bottomSheet
                 ],
               ),
@@ -874,56 +902,60 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       bottomSheet: Container(
         color: const Color.fromARGB(255, 250, 225, 188),
         padding: const EdgeInsets.all(25.0),
-        child: _state.isEmpty
-            ? ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(210, 248, 186, 94),
-                  foregroundColor: Colors.white,
-                  minimumSize: Size(MediaQuery.of(context).size.width - 50, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ShippingAddressScreen(),
+        child:
+            _state.isEmpty
+                ? ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(210, 248, 186, 94),
+                    foregroundColor: Colors.white,
+                    minimumSize: Size(
+                      MediaQuery.of(context).size.width - 50,
+                      50,
                     ),
-                  ).then((_) => _loadUserData());
-                },
-                child: const Text(
-                  'ADD ADDRESS',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ShippingAddressScreen(),
+                      ),
+                    ).then((_) => _loadUserData());
+                  },
+                  child: const Text(
+                    'ADD ADDRESS',
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                  ),
+                )
+                : InkWell(
+                  onTap: _isLoading ? null : _processOrder,
+                  child: Container(
+                    height: 50,
+                    width: MediaQuery.of(context).size.width - 50,
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(210, 248, 186, 94),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Center(
+                      child:
+                          _isLoading
+                              ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                              : const Text(
+                                'PLACE YOUR ORDER',
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  height: 1.4,
+                                ),
+                              ),
+                    ),
                   ),
                 ),
-              )
-            : InkWell(
-                onTap: _isLoading ? null : _processOrder,
-                child: Container(
-                  height: 50,
-                  width: MediaQuery.of(context).size.width - 50,
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(210, 248, 186, 94),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Center(
-                    child: _isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text(
-                            'PLACE YOUR ORDER',
-                            style: TextStyle(
-                              fontSize: 17,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              height: 1.4,
-                            ),
-                          ),
-                  ),
-                ),
-              ),
       ),
     );
   }

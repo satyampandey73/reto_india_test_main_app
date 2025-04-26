@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:reto_app/models/category_models.dart';
 import 'package:reto_app/models/product_model.dart';
 import 'package:reto_app/provider/product_provider.dart';
@@ -66,10 +67,19 @@ class _CategoryProductScreenState extends ConsumerState<CategoryProductScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text(
-          widget.categoryModel.categoryName,
-          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+        backgroundColor: Color.fromARGB(255, 252, 191, 125),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              widget.categoryModel.categoryName,
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                fontFamily: GoogleFonts.raleway().fontFamily,
+              ),
+            ),
+          ],
         ),
       ),
       body: Column(
@@ -119,14 +129,14 @@ class _CategoryProductScreenState extends ConsumerState<CategoryProductScreen> {
     }
 
     return Padding(
-      padding: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.all(18.0),
       child: GridView.count(
         physics: const ScrollPhysics(),
         shrinkWrap: true,
         crossAxisCount: 1,
-        mainAxisSpacing: 15,
-        crossAxisSpacing: 15,
-        childAspectRatio: 120 / 220,
+        mainAxisSpacing: 25,
+        crossAxisSpacing: 25,
+        childAspectRatio: 480 / 440,
         children:
             products.map((product) => PopularItem(productData: product)).toList(),
       ),
@@ -149,6 +159,7 @@ class _CategoryProductScreenState extends ConsumerState<CategoryProductScreen> {
               fontSize: 18,
               fontWeight: FontWeight.bold,
               letterSpacing: 1.7,
+              fontFamily: GoogleFonts.raleway().fontFamily,
             ),
           ),
         ],

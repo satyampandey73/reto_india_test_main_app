@@ -1,11 +1,13 @@
 // // //This is our Product Detail Page
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reto_app/models/product_model.dart';
 import 'package:reto_app/provider/cart_provider.dart';
 import 'package:reto_app/provider/favorite_provider.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
   final ProductModel productData;
@@ -16,6 +18,20 @@ class ProductDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
+  late PageController _pageController; // Define the PageController
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(); // Initialize the PageController
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose(); // Dispose of the PageController
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final cartProviderData = ref.read(
@@ -31,9 +47,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(
         255,
-        255,
-        219,
-        193,
+        253,
+        244,
+        240,
       ), //Background Color of our Product Detail Screen
       //App Bar of Product Detail Screen
       appBar: AppBar(
@@ -59,8 +75,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             //MAIN IMAGE DISPLAY SECTION
             Center(
               child: Container(
-                width: 360,
-                height: 374,
+                width: 412,
+                height: 430,
                 clipBehavior: Clip.hardEdge,
                 decoration: const BoxDecoration(), //This will prevent an Error
                 //SECTION TO DISPLAY IMAGES OF THE PRODUCT
@@ -74,15 +90,15 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       top: 20,
                       child: Container(
                         //'clipBehavior' is not accessible within 'SizedBox' and const cannot be used when we have 'Container' inside.
-                        width: 360,
-                        height: 340,
+                        width: 260,
+                        height: 260,
                         clipBehavior: Clip.hardEdge,
                         decoration: BoxDecoration(
                           color: const Color.fromARGB(
                             255,
-                            246,
-                            206,
-                            136,
+                            243,
+                            156,
+                            6,
                           ), //color of the circular box
                           borderRadius: BorderRadius.circular(130),
                         ),
@@ -90,40 +106,89 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     ),
 
                     Positioned(
-                      left: 22,
+                      left: 0,
                       top: 0,
                       child: Container(
-                        width: 316,
-                        height: 374,
+                        width: 412,
+                        height: 430,
                         clipBehavior: Clip.hardEdge,
                         decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 255, 225, 156),
+                          color: const Color.fromARGB(255, 253, 244, 240),
+
                           borderRadius: BorderRadius.circular(14),
                         ),
 
                         //Here we will display all the images of a particular product uploaded.
-                        child: SizedBox(
-                          height: 300,
-                          child: PageView.builder(
-                            scrollDirection:
-                                Axis.horizontal, //We have to scroll horizontally to see all the images of the product.
-                            itemCount: widget.productData.productImage.length,
-                            itemBuilder: (context, index) {
-                              return Image.network(
-                                //Later try to use 'CachedNetworkImage' here like we did before in 'product_item_widget' page.
-                                widget
-                                    .productData
-                                    .productImage[index], //Accessing every image of the product by their index value by which they are saved in our Firebase. (Index for every image is also shown in our Firebase).
-                                width:
-                                    198, //Width and height of every image that will be displayed. Applicable for all images of all products available.
-                                height: 225,
-                                fit:
-                                    BoxFit
-                                        .cover, //For image to cover the entire Box
-                              );
-                            },
-                          ),
-                        ),
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: PageView.builder(
+                                controller: _pageController,
+                                scrollDirection:
+                                    Axis.horizontal, //We have to scroll horizontally to see all the images of the product.
+                                itemCount:
+                                    widget.productData.productImage.length,
+                                itemBuilder: (context, index) {
+                                  return CachedNetworkImage(
+                                    imageUrl:
+                                        widget
+                                            .productData
+                                            .productImage[index], // URL of the product image
+                                    width: 198, // Width of the image
+                                    height: 225, // Height of the image
+                                    fit:
+                                        BoxFit
+                                            .cover, // Ensures the image covers the box
+                                    placeholder:
+                                        (context, url) => Center(
+                                          child: SizedBox(
+                                            width:
+                                                40, // Custom size for the progress indicator
+                                            height: 40,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth:
+                                                  3, // Thicker stroke for better visibility
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                    const Color.fromARGB(
+                                                      255,
+                                                      238,
+                                                      158,
+                                                      28,
+                                                    ),
+                                                  ), // Custom color
+                                            ),
+                                          ),
+                                        ),
+                                    errorWidget:
+                                        (context, url, error) => const Icon(
+                                          Icons.error,
+                                          color:
+                                              Colors
+                                                  .red, // Custom color for the error icon
+                                          size:
+                                              40, // Custom size for the error icon
+                                        ),
+                                  );
+                                },
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10),
+                              child: SmoothPageIndicator(
+                                controller:
+                                    _pageController, // Attach the controller
+                                count: widget.productData.productImage.length,
+                                effect: ExpandingDotsEffect(
+                                  dotHeight: 8,
+                                  dotWidth: 8,
+                                  activeDotColor: Colors.orange,
+                                  dotColor: Colors.grey.shade400,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ), // Dotted Indicator
                       ),
                     ),
                   ],
@@ -144,7 +209,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   children: [
                     Text(
                       widget.productData.productName, //Displaying Product Name
-                      style: GoogleFonts.roboto(
+                      style: GoogleFonts.raleway(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1,
@@ -152,15 +217,19 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       ),
                     ),
 
-                    Text(
-                      widget.productData.category, //Displaying Product Name
-                      style: TextStyle(
-                        fontSize: 22,
-                        // fontWeight: FontWeight.bold,
-                        // letterSpacing: 1,
-                        color: const Color.fromARGB(255, 65, 62, 62),
-                      ),
-                    ),
+                    // Text(
+                    //   widget.productData.category, //Displaying Product Name
+                    //   style: TextStyle(
+                    //     fontSize: 22,
+                    //     // fontWeight: FontWeight.bold,
+                    //     // letterSpacing: 1,
+                    //     color: const Color.fromARGB(255, 65, 62, 62),
+                    //     fontFamily:
+                    //         GoogleFonts.albertSansTextTheme()
+                    //             .bodyLarge
+                    //             ?.fontFamily, //Using Google Font for our Text
+                    //   ),
+                    // ),
                     SizedBox(height: 10),
                     Container(
                       height: 4,
@@ -186,11 +255,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 children: [
                   Text(
                     '₹${widget.productData.productPrice}', //Displaying the original product price of our Recommended Product. The second '$' is for concatenating 2 strings.
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.grey,
                       fontSize: 22,
                       letterSpacing: 0.3,
                       fontWeight: FontWeight.bold,
+                      fontFamily: GoogleFonts.raleway().fontFamily,
                       decoration:
                           TextDecoration
                               .lineThrough, //This will make a struck or cut (by drawing a line in middle) in our Text, because we want to highlight our discounted price and want our customers to notice that and cut our original price like we normally do in our marketing.
@@ -247,7 +317,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               child: Text(
                 //SUGGESTION: Add Discounted Price as Well in Top beside Original Price or just below it somewhere. //SOLUTION: Added Discounted Price as it will be shown as Customer will pay the Discounted Price Only. SUGGESTION: Add Original Price as well and put a cut like we did in Home Screen Product Tile.
                 '₹${widget.productData.discount.toStringAsFixed(2)}', //Displaying Product Price. We are converting to String because 'Text' widget displays String but our price is Integer. 'AsFixed' will create '.00' after the Original Price
-                style: GoogleFonts.roboto(
+                style: GoogleFonts.notoSerifTamil(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1,
@@ -305,7 +375,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 children: [
                   Text(
                     'Size:',
-                    style: GoogleFonts.lato(
+                    style: GoogleFonts.notoSerifHk(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.6,
@@ -370,7 +440,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 children: [
                   Text(
                     'About:',
-                    style: GoogleFonts.lato(
+                    style: GoogleFonts.overpassMono(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1,
@@ -380,11 +450,11 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
                   Text(
                     widget.productData.description,
-                    style: GoogleFonts.lato(
+                    style: GoogleFonts.hedvigLettersSerif(
                       fontSize: 16,
                       // fontWeight: FontWeight.bold,
                       letterSpacing: 1,
-                      color: Color(0xFF363330),
+                      color: Color.fromARGB(255, 0, 0, 0),
                     ),
                   ),
                 ],
@@ -461,7 +531,6 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 ),
               ),
             ),
-
             SizedBox(width: 10), // Space between buttons
             // FAVORITE BUTTON (takes less space)
             Expanded(

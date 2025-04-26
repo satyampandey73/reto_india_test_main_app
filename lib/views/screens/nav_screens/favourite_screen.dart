@@ -1,5 +1,6 @@
 // //This page is almost similar to our 'cart_screen' page
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,6 +23,7 @@ class FavouriteScreen extends ConsumerWidget {
 
     return Scaffold(
       //Start of APP BAR
+      backgroundColor: const Color(0xFFFFE3C5),
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(
           MediaQuery.of(context).size.height * 0.20,
@@ -34,7 +36,8 @@ class FavouriteScreen extends ConsumerWidget {
           height: 100, //Height of the container
           clipBehavior: Clip.hardEdge,
           decoration: const BoxDecoration(
-            color: Color.fromARGB(255, 250, 197, 159),
+            // color: Color(0xFFFFE3C5),
+            color: Color.fromARGB(255, 251, 178, 99),
             // image: DecorationImage(
             //   image: AssetImage('assets/icons/cartb.png',), //Cart Icon
             //   fit: BoxFit.cover, //This will actually make our App Bar cover the entire screen width
@@ -94,235 +97,260 @@ class FavouriteScreen extends ConsumerWidget {
         ),
       ), //End of APP BAR
 
-      body:
-          wishItemData.isEmpty
-              ? Center(
-                //If our CART is EMPTY then run this Center Widget
-                child: Column(
-                  mainAxisAlignment:
-                      MainAxisAlignment
-                          .center, //Taking the below Text to the Center of the Screen vertically.
-                  children: [
-                    Text(
-                      'Your WISHLIST is Empty \n You can add Product to Your WISHLIST by \n clicking the Button Below!', //'\n' takes us to next line.
-                      textAlign:
-                          TextAlign
-                              .center, //This will align our above text to center horizontally
-                      style: GoogleFonts.roboto(
-                        fontSize: 17,
-                        letterSpacing: 1,
-                        // color: Colors.white,
-                        // fontWeight: FontWeight.w600,
-                      ),
-                    ),
-
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) {
-                              //Navigating the user to Home Screen if he/she press this button
-                              return MainScreen(index: 1);
-                            },
+      body: Container(
+        color: const Color.fromARGB(255, 255, 255, 255),
+        child:
+            wishItemData.isEmpty
+                ? Center(
+                  //If our CART is EMPTY then run this Center Widget
+                  child: Container(
+                    color: Color(0xFFFFE3C5),
+                    child: Column(
+                      mainAxisAlignment:
+                          MainAxisAlignment
+                              .center, //Taking the below Text to the Center of the Screen vertically.
+                      children: [
+                        Text(
+                          'Your WISHLIST is Empty \n You can add Product to Your WISHLIST by \n clicking the Button Below!', //'\n' takes us to next line.
+                          textAlign:
+                              TextAlign
+                                  .center, //This will align our above text to center horizontally
+                          style: GoogleFonts.roboto(
+                            fontSize: 17,
+                            letterSpacing: 1,
+                            // color: Colors.white,
+                            // fontWeight: FontWeight.w600,
                           ),
-                          (route) => false,
-                        );
-                      },
-
-                      child: Text(
-                        'Add Now',
-                        style: GoogleFonts.lato(
-                          fontSize: 17,
-                          letterSpacing: 1,
-                          // color: Colors.white,
-                          // fontWeight: FontWeight.w600,
                         ),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-              : ListView.builder(
-                itemCount: wishItemData.length,
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  final wishData = wishItemData.values.toList()[index];
 
-                  return Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Container(
-                      width: 275,
-                      height: 96,
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 247, 212, 188),
-                        border: Border.all(color: const Color(0xFFEFF0F2)),
-                        borderRadius: BorderRadius.circular(9),
-                      ),
-                      child: Row(
-                        children: [
-                          // Product Image Section
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              left: 14,
-                              top: 9,
-                              bottom: 9,
-                            ),
-                            child: Container(
-                              width: 78,
-                              height: 78,
-                              decoration: BoxDecoration(
-                                color: const Color.fromARGB(255, 251, 240, 240),
-                                borderRadius: BorderRadius.circular(9),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  //Navigating the user to Home Screen if he/she press this button
+                                  return MainScreen(index: 1);
+                                },
                               ),
-                              child: Center(
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.network(
-                                    wishData.productImage[0],
-                                    fit: BoxFit.cover,
-                                    width: 70,
-                                    height: 70,
+                              (route) => false,
+                            );
+                          },
+
+                          child: Text(
+                            'Add Now',
+                            style: GoogleFonts.lato(
+                              fontSize: 17,
+                              letterSpacing: 1,
+                              // color: Colors.white,
+                              // fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+                : ListView.builder(
+                  itemCount: wishItemData.length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    final wishData = wishItemData.values.toList()[index];
+
+                    return Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Container(
+                        width: 275,
+                        height: 96,
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 247, 212, 188),
+                          border: Border.all(color: const Color(0xFFEFF0F2)),
+                          borderRadius: BorderRadius.circular(9),
+                        ),
+                        child: Row(
+                          children: [
+                            // Product Image Section
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: 14,
+                                top: 9,
+                                bottom: 9,
+                              ),
+                              child: Container(
+                                width: 78,
+                                height: 78,
+                                decoration: BoxDecoration(
+                                  color: const Color.fromARGB(
+                                    255,
+                                    251,
+                                    240,
+                                    240,
+                                  ),
+                                  borderRadius: BorderRadius.circular(9),
+                                ),
+                                child: Center(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: CachedNetworkImage(
+                                      imageUrl: wishData.productImage[0],
+                                      fit: BoxFit.cover,
+                                      width: 70,
+                                      height: 70,
+                                      placeholder:
+                                          (context, url) =>
+                                              const CircularProgressIndicator(), // Placeholder while loading
+                                      errorWidget:
+                                          (context, url, error) => const Icon(
+                                            Icons.error,
+                                          ), // Error widget
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
 
-                          // Product Info Section
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 14,
-                                horizontal: 8,
+                            // Product Info Section
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                  horizontal: 8,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      wishData.productName,
+                                      style: GoogleFonts.lato(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                    ),
+                                    Text(
+                                      '₹${wishData.discount.toStringAsFixed(2)}',
+                                      style: GoogleFonts.lato(
+                                        fontWeight: FontWeight.w600,
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                            ),
+
+                            // Action Buttons Section
+                            Align(
+                              alignment: Alignment.bottomRight,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
                                 mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  Text(
-                                    wishData.productName,
-                                    style: GoogleFonts.lato(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.remove_red_eye,
+                                      size: 28,
                                     ),
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) => ProductDetailScreen(
+                                                productData: ProductModel(
+                                                  productId: wishData.productId,
+                                                  productName:
+                                                      wishData.productName,
+                                                  category: wishData.category,
+                                                  description:
+                                                      wishData.description,
+                                                  productImage:
+                                                      wishData.productImage,
+                                                  productSize:
+                                                      wishData.productSize,
+                                                  productPrice:
+                                                      wishData.productPrice,
+                                                  discount: wishData.discount,
+                                                  quantity: wishData.quantity,
+                                                  rating: wishData.rating,
+                                                  totalReviews:
+                                                      wishData.totalReviews,
+                                                  isPopular: wishData.isPopular,
+                                                  isRecommended:
+                                                      wishData.isRecommended,
+                                                  isSoldOut: wishData.isSoldOut,
+                                                  vendorId: wishData.vendorId,
+                                                  vendorName:
+                                                      wishData.vendorName,
+                                                ),
+                                              ),
+                                        ),
+                                      );
+                                    },
                                   ),
-                                  Text(
-                                    '₹${wishData.discount.toStringAsFixed(2)}',
-                                    style: GoogleFonts.lato(
-                                      fontWeight: FontWeight.w600,
-                                      height: 1.4,
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.shopping_cart,
+                                      size: 28,
                                     ),
+                                    onPressed: () {
+                                      // Add to cart functionality
+                                      ref
+                                          .read(cartProvider.notifier)
+                                          .addProductToCart(
+                                            //Accessing and passing out real time product details to addProductToCart function present in 'cart_provider' page and will add the product accordingly as per our logic mentioned there in if else block there within this function.
+                                            product: ProductModel(
+                                              productId: wishData.productId,
+                                              productName: wishData.productName,
+                                              category: wishData.category,
+                                              description: wishData.description,
+                                              productImage:
+                                                  wishData.productImage,
+                                              productSize: wishData.productSize,
+                                              productPrice:
+                                                  wishData.productPrice,
+                                              discount: wishData.discount,
+                                              quantity: wishData.quantity,
+                                              rating: wishData.rating,
+                                              totalReviews:
+                                                  wishData.totalReviews,
+                                              isPopular: wishData.isPopular,
+                                              isRecommended:
+                                                  wishData.isRecommended,
+                                              isSoldOut: wishData.isSoldOut,
+                                              vendorId: wishData.vendorId,
+                                              vendorName: wishData.vendorName,
+                                            ),
+                                            context: context,
+                                          );
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Image.asset(
+                                      'assets/icons/delete2.png',
+                                      width: 28,
+                                      height: 28,
+                                    ),
+                                    onPressed: () {
+                                      favoriteData.removeItem(
+                                        wishData.productId,
+                                      );
+                                    },
                                   ),
                                 ],
                               ),
                             ),
-                          ),
-
-                          // Action Buttons Section
-                          Align(
-                            alignment: Alignment.bottomRight,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.remove_red_eye,
-                                    size: 28,
-                                  ),
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) => ProductDetailScreen(
-                                              productData: ProductModel(
-                                                productId: wishData.productId,
-                                                productName:
-                                                    wishData.productName,
-                                                category: wishData.category,
-                                                description:
-                                                    wishData.description,
-                                                productImage:
-                                                    wishData.productImage,
-                                                productSize:
-                                                    wishData.productSize,
-                                                productPrice:
-                                                    wishData.productPrice,
-                                                discount: wishData.discount,
-                                                quantity: wishData.quantity,
-                                                rating: wishData.rating,
-                                                totalReviews:
-                                                    wishData.totalReviews,
-                                                isPopular: wishData.isPopular,
-                                                isRecommended:
-                                                    wishData.isRecommended,
-                                                isSoldOut: wishData.isSoldOut,
-                                                vendorId: wishData.vendorId,
-                                                vendorName: wishData.vendorName,
-                                              ),
-                                            ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.shopping_cart,
-                                    size: 28,
-                                  ),
-                                  onPressed: () {
-                                    // Add to cart functionality
-                                    ref
-                                        .read(cartProvider.notifier)
-                                        .addProductToCart(
-                                          //Accessing and passing out real time product details to addProductToCart function present in 'cart_provider' page and will add the product accordingly as per our logic mentioned there in if else block there within this function.
-                                          product: ProductModel(
-                                            productId: wishData.productId,
-                                            productName: wishData.productName,
-                                            category: wishData.category,
-                                            description: wishData.description,
-                                            productImage: wishData.productImage,
-                                            productSize: wishData.productSize,
-                                            productPrice: wishData.productPrice,
-                                            discount: wishData.discount,
-                                            quantity: wishData.quantity,
-                                            rating: wishData.rating,
-                                            totalReviews: wishData.totalReviews,
-                                            isPopular: wishData.isPopular,
-                                            isRecommended:
-                                                wishData.isRecommended,
-                                            isSoldOut: wishData.isSoldOut,
-                                            vendorId: wishData.vendorId,
-                                            vendorName: wishData.vendorName,
-                                          ),
-                                          context: context,
-                                        );
-                                  },
-                                ),
-                                IconButton(
-                                  icon: Image.asset(
-                                    'assets/icons/delete2.png',
-                                    width: 28,
-                                    height: 28,
-                                  ),
-                                  onPressed: () {
-                                    favoriteData.removeItem(wishData.productId);
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ),
+                    );
+                  },
+                ),
+      ),
       //
       //
       //: ListView.builder(
