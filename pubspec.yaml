@@ -51,6 +51,7 @@ dependencies:
   razorpay_flutter: ^1.4.0
   animated_text_kit: ^4.2.3
   google_sign_in: ^6.3.0
+  smooth_page_indicator: ^1.2.1
 
 dev_dependencies:
   flutter_test:

@@ -89,17 +89,39 @@ class _CategoryItemState extends State<CategoryItem> {
                               _categoryController
                                   .categories[index]
                                   .categoryImage,
-                          width: 47, //Width of each category image
-                          height: 47, //Height of each category image
+                          width: 47, // Width of each category image
+                          height: 47, // Height of each category image
                           fit:
                               BoxFit
-                                  .cover, //This will make our each category image to cover the each grid box entirely.
+                                  .cover, // This will make each category image cover the grid box entirely
+                          placeholder:
+                              (context, url) => Center(
+                                child: SizedBox(
+                                  width:
+                                      24, // Custom size for the progress indicator
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth:
+                                        2, // Thinner stroke for a cleaner look
+                                    color:
+                                        Colors
+                                            .redAccent, // Custom color for the progress indicator
+                                  ),
+                                ),
+                              ),
+                          errorWidget:
+                              (context, url, error) => const Icon(
+                                Icons.error,
+                                color:
+                                    Colors
+                                        .red, // Custom color for the error icon
+                              ), // Error widget if the image fails to load
                         ),
 
                         //Fetching our Category Name
                         Text(
                           _categoryController.categories[index].categoryName,
-                          style: GoogleFonts.quicksand(
+                          style: GoogleFonts.junge(
                             //Styling our Category Name and specifying our Google Font as well
                             fontSize: 14, //Font Size of our Category Name
                             letterSpacing:

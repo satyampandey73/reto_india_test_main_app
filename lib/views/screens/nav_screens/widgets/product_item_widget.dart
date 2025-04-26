@@ -354,7 +354,6 @@
 //   }
 // }
 
-
 // This page will create the product design which will appear in tiles in Home Screen.
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -389,15 +388,15 @@ class _ProductItemWidgetState extends ConsumerState<ProductItemWidget> {
           context,
           MaterialPageRoute(
             builder: (context) {
-              return ProductDetailScreen(
-                productData: widget.productData,
-              );
+              return ProductDetailScreen(productData: widget.productData);
             },
           ),
         );
       },
       child: Padding(
-        padding: const EdgeInsets.all(12.0), // Increased padding for better spacing
+        padding: const EdgeInsets.all(
+          12.0,
+        ), // Increased padding for better spacing
         child: Container(
           width: 160, // Increased width
           height: 270, // Increased height
@@ -444,9 +443,9 @@ class _ProductItemWidgetState extends ConsumerState<ProductItemWidget> {
                 top: 150,
                 child: Text(
                   widget.productData.productName,
-                  style: GoogleFonts.lato(
+                  style: GoogleFonts.alegreyaSansSc(
                     color: const Color(0xFF1E3354),
-                    fontSize: 16, // Increased font size
+                    fontSize: 18, // Increased font size
                     fontWeight: FontWeight.bold,
                     letterSpacing: 0.5,
                   ),
@@ -459,7 +458,7 @@ class _ProductItemWidgetState extends ConsumerState<ProductItemWidget> {
                 top: 180,
                 child: Text(
                   widget.productData.category,
-                  style: GoogleFonts.lato(
+                  style: GoogleFonts.happyMonkey(
                     color: const Color(0xFF7F8E9D),
                     fontSize: 14, // Increased font size
                     letterSpacing: 0.3,
@@ -473,7 +472,7 @@ class _ProductItemWidgetState extends ConsumerState<ProductItemWidget> {
                 top: 210,
                 child: Text(
                   '₹${widget.productData.discount}',
-                  style: GoogleFonts.lato(
+                  style: GoogleFonts.wixMadeforDisplay(
                     color: const Color(0xFF1E3354),
                     fontSize: 20, // Increased font size
                     fontWeight: FontWeight.w700,
@@ -591,11 +590,15 @@ class _ProductItemWidgetState extends ConsumerState<ProductItemWidget> {
                       );
                     }
                   },
-                  icon: favoriteProviderData.getFavoriteItem.containsKey(
-                    widget.productData.productId,
-                  )
-                      ? const Icon(Icons.favorite, color: Colors.red)
-                      : const Icon(Icons.favorite_border, color: Colors.red),
+                  icon:
+                      favoriteProviderData.getFavoriteItem.containsKey(
+                            widget.productData.productId,
+                          )
+                          ? const Icon(Icons.favorite, color: Colors.red)
+                          : const Icon(
+                            Icons.favorite_border,
+                            color: Colors.red,
+                          ),
                 ),
               ),
             ],

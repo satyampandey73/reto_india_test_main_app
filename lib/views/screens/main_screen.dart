@@ -36,12 +36,9 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: CurvedNavigationBar(
-        backgroundColor: const Color.fromARGB(
-          255,
-          255,
-          219,
-          193,
-        ), // Background color above the bar        
+        backgroundColor: const Color(
+          0xFFFFE3C5,
+        ), // Background color above the bar
         // Active button color
         index: selectedIndex,
         // key: NavbarKey.getKey(),

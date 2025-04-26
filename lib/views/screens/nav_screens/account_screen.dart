@@ -440,8 +440,8 @@ import 'package:reto_app/provider/cart_provider.dart';
 import 'package:reto_app/provider/favorite_provider.dart';
 import 'package:reto_app/views/screens/authentication_screens/login_screen.dart';
 import 'package:reto_app/views/screens/inner_screens/shipping_address_screen.dart';
-// import 'package:reto_radiance/controllers/shared_preference_controller.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
+import 'package:reto_app/views/screens/nav_screens/home_screen.dart';
+import 'package:reto_app/views/screens/nav_screens/widgets/contactusscreen.dart';
 
 import '../inner_screens/order_screen.dart';
 
@@ -508,7 +508,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 255, 219, 193),
+      backgroundColor: Color(0xFFFFE3C5),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -524,7 +524,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     alignment: Alignment.center,
                     child: CachedNetworkImage(
                       imageUrl:
-                          "https://images.unsplash.com/photo-1472289065668-ce650ac443d2?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8b3JhZ25nZSUyMGJhY2tncm91bmR8ZW58MHx8MHx8fDA%3D",
+                          "https://images.unsplash.com/photo-1602584268213-b9203bf66aa2?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzQ0fHxvcmFuZ2UlMjBjb2xvciUyMHdhbGxwYXBlcnxlbnwwfHwwfHx8MA%3D%3D",
                       width: MediaQuery.of(context).size.width,
                       height: 451,
                       fit: BoxFit.cover,
@@ -554,9 +554,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       const Align(
                         alignment: Alignment(0, -0.53),
                         child: CircleAvatar(
-                          radius: 65,
+                          radius: 70,
                           backgroundImage: CachedNetworkImageProvider(
-                            'https://cdn.pixabay.com/photo/2014/04/03/10/32/businessman-310819_1280.png',
+                            'https://img.freepik.com/premium-photo/profile-icon-white-background_941097-160910.jpg?semt=ais_hybrid&w=740',
                           ),
                         ),
                       ),
@@ -587,7 +587,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       builder: (context, snapshot) {
                         if (_auth.currentUser == null) {
                           return const Text(
-                            "Please log in to view your account details",
+                            "Login to Explore More",
                             style: TextStyle(fontSize: 16, color: Colors.black),
                           );
                         }
@@ -637,7 +637,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                         builder: (context, snapshot) {
                           if (_auth.currentUser == null) {
                             return const Text(
-                              "Please log in to view your city",
+                              "",
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.white,
@@ -871,43 +871,46 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 ],
               ),
             ),
-            SizedBox(height: 10),
-            ListTile(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return OrderScreen();
-                    },
-                  ),
-                );
-              },
-              leading: Image.asset('assets/icons/orders.png'),
-              title: Text(
-                'Track your order',
-                style: GoogleFonts.lato(fontWeight: FontWeight.bold),
+            SizedBox(height: 5),
+            if (_auth.currentUser != null)
+              ListTile(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return OrderScreen();
+                      },
+                    ),
+                  );
+                },
+                leading: Image.asset('assets/icons/orders.png'),
+                title: Text(
+                  'Track your order',
+                  style: GoogleFonts.lato(fontWeight: FontWeight.bold),
+                ),
               ),
-            ),
             SizedBox(height: 10),
-            ListTile(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return ShippingAddressScreen();
-                    },
-                  ),
-                );
-              },
-              leading: Image.asset('assets/icons/history.png'),
-              title: Text(
-                'Add/Update Address',
-                style: GoogleFonts.lato(fontWeight: FontWeight.bold),
+
+            if (_auth.currentUser != null)
+              ListTile(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return ShippingAddressScreen();
+                      },
+                    ),
+                  );
+                },
+                leading: Image.asset('assets/icons/history.png'),
+                title: Text(
+                  'Add/Update Address',
+                  style: GoogleFonts.lato(fontWeight: FontWeight.bold),
+                ),
               ),
-            ),
-            SizedBox(height: 10),
+
             // ListTile(
             //   leading: Image.asset('assets/icons/help.png'),
             //   title: Text(
@@ -915,6 +918,24 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             //     style: GoogleFonts.lato(fontWeight: FontWeight.bold),
             //   ),
             // ),
+            SizedBox(height: 10),
+            ListTile(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return ContactPage();
+                    },
+                  ),
+                );
+              },
+              leading: Image.asset('assets/icons/help.png'),
+              title: Text(
+                'Contact Us ',
+                style: GoogleFonts.lato(fontWeight: FontWeight.bold),
+              ),
+            ),
             SizedBox(height: 10),
             ListTile(
               onTap: () async {
@@ -939,6 +960,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 style: GoogleFonts.lato(fontWeight: FontWeight.bold),
               ),
             ),
+            SizedBox(height: 40),
           ],
         ),
       ),

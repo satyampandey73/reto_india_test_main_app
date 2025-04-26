@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -48,8 +49,8 @@ class OrderScreen extends StatelessWidget {
           child: Stack(
             children: [
               Positioned(
-                left: 322,
-                top: 52,
+                left: 300,
+                top: 45,
                 child: Stack(
                   children: [
                     IconButton(
@@ -79,7 +80,7 @@ class OrderScreen extends StatelessWidget {
               //TITLE OF OUR NAVBAR
               Positioned(
                 left: 61,
-                top: 51,
+                top: 45,
                 child: Text(
                   'My Orders',
                   style: GoogleFonts.lato(
@@ -194,11 +195,20 @@ class OrderScreen extends StatelessWidget {
                                           Positioned(
                                             left: 10,
                                             top: 5,
-                                            child: Image.network(
-                                              orderData['productImage'],
-                                              width: 58, //Width of Image
-                                              height: 67, //Height of Image
+                                            child: CachedNetworkImage(
+                                              imageUrl:
+                                                  orderData['productImage'], // URL of the product image
+                                              width: 58, // Width of the image
+                                              height: 67, // Height of the image
                                               fit: BoxFit.cover,
+                                              placeholder:
+                                                  (context, url) =>
+                                                      const CircularProgressIndicator(), // Placeholder while loading
+                                              errorWidget:
+                                                  (context, url, error) =>
+                                                      const Icon(
+                                                        Icons.error,
+                                                      ), // Error widget
                                             ),
                                           ),
                                         ],

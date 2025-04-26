@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:reto_app/controllers/banner_controller.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class BannerWidget extends StatefulWidget {
   const BannerWidget({super.key});
@@ -11,6 +12,8 @@ class BannerWidget extends StatefulWidget {
 
 class _BannerWidgetState extends State<BannerWidget> {
   final BannerController _bannerController = BannerController();
+  late PageController
+  _pageController; //PageController is used to control the PageView.
 
   //Initialising Firestore package and creating '_firestore' which we will use to fetch our Banners from the Firebase.
   // final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -43,7 +46,17 @@ class _BannerWidgetState extends State<BannerWidget> {
   //   super.initState();
   // }
   //
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(); // Initialize the PageController
+  }
 
+  @override
+  void dispose() {
+    _pageController.dispose(); // Dispose of the PageController
+    super.dispose();
+  }
   //The above entire function is not needed as now we will retrieve our Banners from Firebase using GetX and we have already written or made that function in our 'banner_controller' page.
 
   @override
@@ -71,7 +84,7 @@ class _BannerWidgetState extends State<BannerWidget> {
     // print(4);
     return Padding(
       padding: const EdgeInsets.all(
-        20.0,
+        0.0,
       ), //Added Padding to our Container from all sides (MAIN PADDING)
       child: Container(
         //Here inside this we will display our Banners
@@ -81,7 +94,7 @@ class _BannerWidgetState extends State<BannerWidget> {
             MediaQuery.of(context)
                 .size
                 .width, //We will have many phones using our App so there will be many screen sizes hence this line will automatically take the entire current screen width size of the phone.
-        height: 170, //Height of the Container
+        height: 200, //Height of the Container
 
         decoration: BoxDecoration(
           color: const Color.fromARGB(
@@ -121,7 +134,12 @@ class _BannerWidgetState extends State<BannerWidget> {
             {
               return const Center(
                 child: CircularProgressIndicator(
-                  color: Colors.blue, //Color of the Circular Progress Indicator
+                  color: Color.fromARGB(
+                    255,
+                    243,
+                    117,
+                    33,
+                  ), //Color of the Circular Progress Indicator
                 ),
               );
             } else if (snapshot
@@ -145,6 +163,7 @@ class _BannerWidgetState extends State<BannerWidget> {
                 alignment: Alignment.bottomCenter,
                 children: [
                   PageView.builder(
+                    controller: _pageController,
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
                       // return Image.network(snapshot.data![index],
@@ -168,9 +187,23 @@ class _BannerWidgetState extends State<BannerWidget> {
                     },
                   ),
 
-                  _buildPageIndicator(
-                    snapshot.data!.length,
-                  ), //Passing the number of banners as argument to '_buildPageIndicator' function to create our indicators to show the number of banners
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: SmoothPageIndicator(
+                      controller: _pageController, // Attach the controller
+                      count: snapshot.data!.length,
+                      effect: ExpandingDotsEffect(
+                        dotHeight: 8,
+                        dotWidth: 8,
+                        activeDotColor: Colors.orange,
+                        dotColor: Colors.grey.shade400,
+                      ),
+                    ),
+                  ),
+
+                  // _buildPageIndicator(
+                  //   snapshot.data!.length,
+                  // ), //Passing the number of banners as argument to '_buildPageIndicator' function to create our indicators to show the number of banners
                 ],
               );
             }
@@ -181,37 +214,37 @@ class _BannerWidgetState extends State<BannerWidget> {
   }
 
   //This widget will now show the user the indicator of banners that how many banners are there
-  Widget _buildPageIndicator(int pageCount) {
-    //'pageCount' variable will store the number of Banners
+  // Widget _buildPageIndicator(int pageCount) {
+  //   //'pageCount' variable will store the number of Banners
 
-    return Container(
-      margin: const EdgeInsets.only(
-        bottom: 16,
-      ), //Giving margin only at the bottom of the Container
+  //   return Container(
+  //     margin: const EdgeInsets.only(
+  //       bottom: 16,
+  //     ), //Giving margin only at the bottom of the Container
 
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.center,
 
-        children: List.generate(pageCount, (index) {
-          return Container(
-            //In this container we will actually create and design our Indicators
-            width: 8, //Width of each indicator
-            height: 8, //Height of each indicator
+  //       children: List.generate(pageCount, (index) {
+  //         return Container(
+  //           //In this container we will actually create and design our Indicators
+  //           width: 8, //Width of each indicator
+  //           height: 8, //Height of each indicator
 
-            margin: const EdgeInsets.symmetric(
-              horizontal: 4,
-            ), //This is the Horizontal Margin between each Indicator
+  //           margin: const EdgeInsets.symmetric(
+  //             horizontal: 4,
+  //           ), //This is the Horizontal Margin between each Indicator
 
-            decoration: const BoxDecoration(
-              color: Colors.orange, //Color of each indicator
+  //           decoration: const BoxDecoration(
+  //             color: Colors.orange, //Color of each indicator
 
-              shape:
-                  BoxShape
-                      .circle, //Making our Indicator shape as circle from rectangle.
-            ),
-          );
-        }),
-      ),
-    );
-  }
+  //             shape:
+  //                 BoxShape
+  //                     .circle, //Making our Indicator shape as circle from rectangle.
+  //           ),
+  //         );
+  //       }),
+  //     ),
+  //   );
+  // }
 }
