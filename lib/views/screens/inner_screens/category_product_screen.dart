@@ -1,186 +1,3 @@
-// //
-// //
-// // import 'package:cloud_firestore/cloud_firestore.dart';
-// // import 'package:flutter/cupertino.dart';
-// // import 'package:flutter/material.dart';
-// // import 'package:reto_radiance/models/category_models.dart';
-// //
-// // import '../nav_screens/widgets/popularItem.dart';
-// //
-// // class CategoryProductScreen extends StatelessWidget {
-// //   final CategoryModel categoryModel;
-// //
-// //   const CategoryProductScreen({super.key, required this.categoryModel});
-// //
-// //   @override
-// //   Widget build(BuildContext context) {
-// //     //Fetching only those products with same category name. 'isEqualTo' is used for matching only.
-// //     final Stream<QuerySnapshot> productStream =
-// //     FirebaseFirestore.instance
-// //         .collection('products')
-// //         .where('category', isEqualTo: categoryModel.categoryName)
-// //         .snapshots();
-// //
-// //     return Scaffold(
-// //       //Start of APP BAR
-// //       appBar: AppBar(
-// //         backgroundColor: Color.fromARGB(255, 255, 255, 255),
-// //         title: Text(
-// //           categoryModel.categoryName,
-// //           style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-// //         ),
-// //       ),
-// //
-// //       //END of APP BAR
-// //       body: StreamBuilder<QuerySnapshot>(
-// //         stream: productStream,
-// //         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-// //           if (snapshot.hasError) {
-// //             return const Text('Something went wrong');
-// //           }
-// //
-// //           if (snapshot.connectionState == ConnectionState.waiting) {
-// //             return const Center(child: CircularProgressIndicator());
-// //           }
-// //
-// //           if (snapshot.data!.docs.isEmpty) {
-// //             //This means there is no product in this category
-// //             return Center(
-// //               child: Column(
-// //                 children: [
-// //                   Icon(
-// //                     CupertinoIcons.battery_empty,
-// //                   ), //Add your own button for empty.
-// //                   const Text(
-// //                     'No Product under this Category \nCheck Back Later',
-// //                     textAlign:
-// //                     TextAlign.center, //To Align the Text in the Center
-// //                     style: TextStyle(
-// //                       fontSize: 18,
-// //                       // color: Colors.white,
-// //                       fontWeight: FontWeight.bold,
-// //                       letterSpacing: 1.7,
-// //                     ),
-// //                   ),
-// //                 ],
-// //               ),
-// //             );
-// //           }
-// //
-// //           return Padding(
-// //             padding: const EdgeInsets.all(10.0),
-// //             child: GridView.count(
-// //               physics: ScrollPhysics(), //This will make it Scrollable
-// //               shrinkWrap: true,
-// //               crossAxisCount: 3, //How many items we will have in each Row
-// //               mainAxisSpacing: 15, //Vertical Spacing
-// //               crossAxisSpacing: 15, //Space between each product horizontally
-// //               childAspectRatio: 300 / 500, //Format: width/height
-// //
-// //               children: List.generate(snapshot.data!.size, (index) {
-// //                 final productData = snapshot.data!.docs[index];
-// //
-// //                 //Designing our Each Grid Tile
-// //                 return PopularItem(productData: productData);
-// //               }),
-// //             ),
-// //           );
-// //         },
-// //       ),
-// //     );
-// //   }
-// // }
-
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:flutter/cupertino.dart';
-// import 'package:flutter/material.dart';
-// import 'package:reto_radiance/models/category_models.dart';
-
-// import '../nav_screens/widgets/popularItem.dart';
-
-// class CategoryProductScreen extends StatelessWidget {
-//   final CategoryModel categoryModel;
-
-//   const CategoryProductScreen({super.key, required this.categoryModel});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     //Fetching only those products with same category name. 'isEqualTo' is used for matching only.
-//     final Stream<QuerySnapshot> productStream =
-//     FirebaseFirestore.instance
-//         .collection('products')
-//         .where('category', isEqualTo: categoryModel.categoryName)
-//         .snapshots();
-
-//     return Scaffold(
-//       //Start of APP BAR
-//       appBar: AppBar(
-//         backgroundColor: Color.fromARGB(255, 255, 255, 255),
-//         title: Text(
-//           categoryModel.categoryName,
-//           style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-//         ),
-//       ),
-
-//       //END of APP BAR
-//       body: StreamBuilder<QuerySnapshot>(
-//         stream: productStream,
-//         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-//           if (snapshot.hasError) {
-//             return const Text('Something went wrong');
-//           }
-
-//           if (snapshot.connectionState == ConnectionState.waiting) {
-//             return const Center(child: CircularProgressIndicator());
-//           }
-
-//           if (snapshot.data!.docs.isEmpty) {
-//             //This means there is no product in this category
-//             return Center(
-//               child: Column(
-//                 children: [
-//                   Icon(
-//                     CupertinoIcons.battery_empty,
-//                   ), //Add your own button for empty.
-//                   const Text(
-//                     'No Product under this Category \nCheck Back Later',
-//                     textAlign:
-//                     TextAlign.center, //To Align the Text in the Center
-//                     style: TextStyle(
-//                       fontSize: 18,
-//                       // color: Colors.white,
-//                       fontWeight: FontWeight.bold,
-//                       letterSpacing: 1.7,
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             );
-//           }
-
-//           return Padding(
-//             padding: const EdgeInsets.all(10.0),
-//             child: GridView.count(
-//               physics: ScrollPhysics(), //This will make it Scrollable
-//               shrinkWrap: true,
-//               crossAxisCount: 2, //How many items we will have in each Row
-//               mainAxisSpacing: 15, //Vertical Spacing
-//               crossAxisSpacing: 15, //Space between each product horizontally
-//               childAspectRatio: 300 / 400, //Format: width/height
-
-//               children: List.generate(snapshot.data!.size, (index) {
-//                 final productData = snapshot.data!.docs[index];
-
-//                 //Designing our Each Grid Tile
-//                 return PopularItem(productData: productData);
-//               }),
-//             ),
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -201,6 +18,10 @@ class CategoryProductScreen extends ConsumerStatefulWidget {
 }
 
 class _CategoryProductScreenState extends ConsumerState<CategoryProductScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+  String _searchQuery = '';
+
   @override
   void initState() {
     super.initState();
@@ -210,15 +31,39 @@ class _CategoryProductScreenState extends ConsumerState<CategoryProductScreen> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
+
+  void _clearSearch() {
+    setState(() {
+      _searchController.clear();
+      _searchQuery = '';
+    });
+  }
+
+  void _submitSearch() {
+    setState(() {
+      _searchQuery = _searchController.text;
+    });
+    // Unfocus to dismiss keyboard
+    _searchFocusNode.unfocus();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final products = ref.watch(productProvider);
-    final filteredProducts =
-        products
-            .where(
-              (product) =>
-                  product?.category == widget.categoryModel.categoryName,
-            )
-            .toList();
+    final filteredProducts = products
+        .where(
+          (product) =>
+              product.category == widget.categoryModel.categoryName &&
+              product.productName
+                  .toLowerCase()
+                  .contains(_searchQuery.toLowerCase()),
+        )
+        .toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -237,7 +82,44 @@ class _CategoryProductScreenState extends ConsumerState<CategoryProductScreen> {
           ],
         ),
       ),
-      body: _buildBody(filteredProducts),
+      body: Column(
+        children: [
+          _buildSearchBar(),
+          Expanded(child: _buildBody(filteredProducts)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: TextField(
+        controller: _searchController,
+        focusNode: _searchFocusNode,
+        decoration: InputDecoration(
+          hintText: 'Search products...',
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon: _searchController.text.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: _clearSearch,
+                )
+              : null,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+            borderSide: const BorderSide(color: Colors.grey),
+          ),
+          contentPadding: const EdgeInsets.symmetric(vertical: 0.0),
+        ),
+        onChanged: (value) {
+          setState(() {
+            _searchQuery = value;
+          });
+        },
+        onSubmitted: (_) => _submitSearch(),
+        textInputAction: TextInputAction.search,
+      ),
     );
   }
 
@@ -256,9 +138,7 @@ class _CategoryProductScreenState extends ConsumerState<CategoryProductScreen> {
         crossAxisSpacing: 25,
         childAspectRatio: 480 / 440,
         children:
-            products
-                .map((product) => PopularItem(productData: product))
-                .toList(),
+            products.map((product) => PopularItem(productData: product)).toList(),
       ),
     );
   }
@@ -266,12 +146,16 @@ class _CategoryProductScreenState extends ConsumerState<CategoryProductScreen> {
   Widget _buildEmptyState() {
     return Center(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(CupertinoIcons.battery_empty),
+          const Icon(CupertinoIcons.battery_empty, size: 50),
+          const SizedBox(height: 16),
           Text(
-            'No Product under this Category \nCheck Back Later',
+            _searchQuery.isEmpty
+                ? 'No Product under this Category \nCheck Back Later'
+                : 'No products found for "${_searchQuery}"',
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               letterSpacing: 1.7,

@@ -1,5 +1,3 @@
-
-
 //Till now we have retrieved our Banners from our Firebase in a normal way, now we will be retrieving our Banners from Firebase using GetX
 
 import 'package:cloud_firestore/cloud_firestore.dart';
