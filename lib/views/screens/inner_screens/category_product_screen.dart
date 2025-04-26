@@ -155,7 +155,7 @@ class _CategoryProductScreenState extends ConsumerState<CategoryProductScreen> {
                 ? 'No Product under this Category \nCheck Back Later'
                 : 'No products found for "${_searchQuery}"',
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               letterSpacing: 1.7,
