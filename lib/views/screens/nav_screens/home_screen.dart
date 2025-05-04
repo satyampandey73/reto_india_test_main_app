@@ -34,9 +34,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(productProvider.notifier).fetchAllProducts();
-    });
     _searchController.addListener(_onSearchChanged);
   }
 
@@ -80,6 +77,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
+        surfaceTintColor: Colors.transparent,
         title: Padding(
           padding: const EdgeInsets.only(top: 8.0, left: 17),
           child: Container(
@@ -216,7 +214,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       body: SingleChildScrollView(
         child: Container(
           decoration: BoxDecoration(
-            color: const Color(0xFFFFE3C5),
+            color: const Color.fromRGBO(255, 227, 197, 1),
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(50),
               topRight: Radius.circular(50),
