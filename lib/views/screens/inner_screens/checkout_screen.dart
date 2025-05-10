@@ -7,6 +7,8 @@ import 'package:reto_app/models/cart_models.dart';
 import 'package:reto_app/provider/cart_provider.dart';
 import 'package:reto_app/views/screens/inner_screens/shipping_address_screen.dart';
 import 'package:reto_app/views/screens/main_screen.dart';
+import 'package:reto_app/views/screens/inner_screens/payement_screen.dart';
+
 import 'package:uuid/uuid.dart';
 
 // Create a service class to handle Firebase operations
@@ -167,7 +169,9 @@ class FirebaseService {
           'pinCode': userData['pinCode'] ?? '',
           'deliveredCount': 0,
           'delivered': false,
-          'processing': true,
+          'processing': false,
+          'canceled': false,
+          'placed': true,
           'vendorId': item.vendorId,
           'createdAt': FieldValue.serverTimestamp(),
         });
@@ -385,63 +389,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     }
   }
 
-  // Process order
-  Future<void> _processOrder() async {
-    if (_state.isEmpty) {
-      ErrorHandler.showSnackBar(
-        context,
-        message: 'Please add your shipping address first',
-        isError: true,
-      );
-      return;
-    }
-
-    // Show confirmation dialog for COD
-    final bool? confirm = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder:
-          (BuildContext context) => AlertDialog(
-            title: const Text("Confirm Order"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text("You are choosing Cash on Delivery method."),
-                const SizedBox(height: 10),
-                RichText(
-                  text: const TextSpan(
-                    style: TextStyle(color: Colors.black, fontSize: 12),
-                    children: [
-                      TextSpan(text: "By confirming, you agree that "),
-                      TextSpan(
-                        text: "fraudulent or fake orders ",
-                        style: TextStyle(color: Colors.red),
-                      ),
-                      TextSpan(
-                        text:
-                            "may lead to legal proceedings under Section 420 of IPC ",
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text("CANCEL"),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text("CONFIRM"),
-              ),
-            ],
-          ),
-    );
-
-    if (confirm != true) return;
-
+  Future<void> _processCashOnDeliveryOrder() async {
     setState(() => _isLoading = true);
 
     try {
@@ -484,6 +432,81 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  // Process order
+  Future<void> _processOrder() async {
+    if (_state.isEmpty) {
+      ErrorHandler.showSnackBar(
+        context,
+        message: 'Please add your shipping address first',
+        isError: true,
+      );
+      return;
+    }
+
+    // Handle different payment methods
+    if (_selectedPaymentMethod == 'cashOnDelivery') {
+      // Show confirmation dialog for COD
+      final bool? confirm = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder:
+            (BuildContext context) => AlertDialog(
+              title: const Text("Confirm Order"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("You are choosing Cash on Delivery method."),
+                  const SizedBox(height: 10),
+                  RichText(
+                    text: const TextSpan(
+                      style: TextStyle(color: Colors.black, fontSize: 12),
+                      children: [
+                        TextSpan(text: "By confirming, you agree that "),
+                        TextSpan(
+                          text: "fraudulent or fake orders ",
+                          style: TextStyle(color: Colors.red),
+                        ),
+                        TextSpan(
+                          text:
+                              "may lead to legal proceedings under Section 420 of IPC ",
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text("CANCEL"),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text("CONFIRM"),
+                ),
+              ],
+            ),
+      );
+
+      if (confirm != true) return;
+
+      await _processCashOnDeliveryOrder();
+    } else if (_selectedPaymentMethod == 'razorpay') {
+      // Navigate to RazorPay payment screen
+      final double discountedTotal = widget.totalPrice * (1.0 - _discount);
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder:
+              (context) =>
+                  RazorPayPage(amount: discountedTotal, discount: _discount),
+        ),
+      );
     }
   }
 
@@ -745,6 +768,55 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     );
   }
 
+  Widget _buildPaymentOptions() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Choose Payment Method',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 4),
+
+        // Cash on Delivery option
+        RadioListTile<String>(
+          title: Row(
+            children: [
+              const Icon(Icons.payments_outlined),
+              const SizedBox(width: 8),
+              const Text('Cash on Delivery'),
+            ],
+          ),
+          value: 'cashOnDelivery',
+          groupValue: _selectedPaymentMethod,
+          onChanged: (String? value) {
+            if (value != null) {
+              setState(() => _selectedPaymentMethod = value);
+            }
+          },
+        ),
+
+        // Online Payment option with RazorPay
+        RadioListTile<String>(
+          title: Row(
+            children: [
+              const Icon(Icons.account_balance_wallet_outlined),
+              const SizedBox(width: 8),
+              const Text('Pay Online (RazorPay)'),
+            ],
+          ),
+          value: 'razorpay',
+          groupValue: _selectedPaymentMethod,
+          onChanged: (String? value) {
+            if (value != null) {
+              setState(() => _selectedPaymentMethod = value);
+            }
+          },
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cartProviderData = ref.watch(cartProvider);
@@ -871,25 +943,25 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   ),
 
                   const Divider(color: Colors.black12, height: 24),
-
+                  _buildPaymentOptions(),
                   // Payment Options Section
-                  const Text(
-                    'Choose Payment Method',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
+                  // const Text(
+                  //   'Choose Payment Method',
+                  //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  // ),
 
-                  const SizedBox(height: 4),
+                  // const SizedBox(height: 4),
 
-                  RadioListTile<String>(
-                    title: const Text('Cash on Delivery'),
-                    value: 'cashOnDelivery',
-                    groupValue: _selectedPaymentMethod,
-                    onChanged: (String? value) {
-                      if (value != null) {
-                        setState(() => _selectedPaymentMethod = value);
-                      }
-                    },
-                  ),
+                  // RadioListTile<String>(
+                  //   title: const Text('Cash on Delivery'),
+                  //   value: 'cashOnDelivery',
+                  //   groupValue: _selectedPaymentMethod,
+                  //   onChanged: (String? value) {
+                  //     if (value != null) {
+                  //       setState(() => _selectedPaymentMethod = value);
+                  //     }
+                  //   },
+                  // ),
 
                   const SizedBox(height: 100), // Space for bottomSheet
                 ],
