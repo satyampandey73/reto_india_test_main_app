@@ -8,8 +8,7 @@ import 'package:reto_app/views/screens/main_screen.dart';
 import 'package:uuid/uuid.dart';
 
 class RazorPayPage extends ConsumerStatefulWidget {
-  const RazorPayPage({Key? key, required this.amount, required this.discount})
-    : super(key: key);
+  const RazorPayPage({super.key, required this.amount, required this.discount});
   final double amount;
   final double discount;
 

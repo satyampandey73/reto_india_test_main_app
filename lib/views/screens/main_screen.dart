@@ -18,7 +18,7 @@ class MainScreen extends ConsumerStatefulWidget {
 
 class _MainScreenState extends ConsumerState<MainScreen> {
   int selectedIndex = 0;
-
+  
   final screen = [
     HomeScreen(),
     FavouriteScreen(),
@@ -28,7 +28,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   ];
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(productProvider.notifier).fetchAllProducts();
